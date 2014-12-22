@@ -1,16 +1,18 @@
 # terraform-aws-cf-install
 
-This project aims to create one click deploy for Cloud Foundry into an AWS VPC.
-
+This is part of a project that aims to create a one click deploy of Cloud Foundry
+into an AWS VPC. This is (probably) the repo you want to use.
 
 ## Architecture
-We rely on two other repositories to do the bulk of the work. The [terraform-aws-vpc](https://github.com/cloudfoundry-community/terraform-aws-vpc)
-repo creates the base VPC infrastructure, including a bastion subnet, the `microbosh` subnet, a NAT server,
-various route tables, and the VPC itself. Then, the [terraform-aws-cf-net](https://github.com/cloudfoundry-community/terraform-aws-cf-net) repo
-creates a loadbalancer subnet, two runtime subnets, `cf` related security groups, and
-the elastic IP used by `cf`. This gives us the flexibility to use the `terraform-aws-cf-net`
-module multiple times, to have a staging and production cf within the same VPC,
-sharing a single microbosh instance.
+We rely on two other repositories to do the bulk of the work. The
+[terraform-aws-vpc](https://github.com/cloudfoundry-community/terraform-aws-vpc)
+repo creates the base VPC infrastructure, including a bastion subnet, the
+`microbosh` subnet, a NAT server, various route tables, and the VPC itself. Then
+the [terraform-aws-cf-net](https://github.com/cloudfoundry-community/terraform-aws-cf-net)
+repo creates a loadbalancer subnet, two runtime subnets, `cf` related security
+groups, and the elastic IP used by `cf`. This gives us the flexibility to use the
+`terraform-aws-cf-net` module multiple times, to have a staging and production cf
+within the same VPC, sharing a single microbosh instance.
 
 ## Deploy Cloud Foundry
 
@@ -51,6 +53,26 @@ make plan
 make apply
 ```
 
+## After Initial Install
+At the end of the output of the terraform run, there will be a section called `Outputs`
+that will have at least `bastion_ip` and an IP address. If not, or if you cleared
+the terminal without noting it, you can log into the AWS console and look for an
+instance called 'inception server', with the `bastion` security group. Use the
+public IP associated with that instance, and ssh in as the ubuntu user, using the
+ssh key listed as `aws_key_path` in your configuration (if you used the Unattended
+Install).
+
+
+```
+ssh -i ~/.ssh/example.pm ubuntu@54.1.2.3
+```
+
+Once in, you can look in `workspace/deployments/cf-boshworkspace/` for the bosh
+deployment manifest and template files. Any further updates or changes to your
+microbosh or Cloud Foundry environment will be done manually using this machine
+as your work space. Terraform provisioning scripts are not intended for long-term
+updates or maintenance.
+
 ### Cleanup / Tear down
 Terraform does not yet quite cleanup after itself. You can run `make destroy` to
 get quite a few of the resources you created, but you will probably have to manually
@@ -61,7 +83,7 @@ without errors.
 ## Module Outputs
 If you wish to use this module in conjunction with `terraform-aws-cf-net` to create
 more than one `cf` instance in a single VPC, that is fully supported. First, uncomment
-the `output` for the following variables in aws-cf-install.tf. They are suitable 
+the `output` for the following variables in aws-cf-install.tf. They are suitable
 to be used as variable inputs to the `terraform-aws-cf-net` module:
 
 ```
@@ -75,7 +97,7 @@ aws_subnet_bastion_availability_zone
 ### Example usage
 
 Note that this does not actually create the second `cf` instance, that has to be
-done manually. You should be able to take the resources created by the `cf-staging` 
+done manually. You should be able to take the resources created by the `cf-staging`
 module, copy the cf-boshbootstrap directory on the bastion server, and search and
 replace with the new values. Also, you can set the `offset` value to whatever you
 want, from 1 to 24.
