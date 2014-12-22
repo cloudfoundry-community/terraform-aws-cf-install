@@ -60,9 +60,9 @@ without errors.
 
 ## Module Outputs
 If you wish to use this module in conjunction with `terraform-aws-cf-net` to create
-more than one `cf` instance in a single VPC, that is fully supported. The following
-variables are outputs of the module, suitable to be used as variable inputs to the
-`terraform-aws-cf-net` module:
+more than one `cf` instance in a single VPC, that is fully supported. First, uncomment
+the `output` for the following variables in aws-cf-install.tf. They are suitable 
+to be used as variable inputs to the `terraform-aws-cf-net` module:
 
 ```
 aws_vpc_id

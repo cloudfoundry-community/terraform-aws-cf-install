@@ -14,25 +14,25 @@ module "vpc" {
   aws_key_path = "${var.aws_key_path}"
 }
 
-output "aws_vpc_id" {
-  value = "${module.vpc.aws_vpc_id}"
-}
-
-output "aws_internet_gateway_id" {
-  value = "${module.vpc.aws_internet_gateway_id}"
-}
-
-output "aws_route_table_public_id" {
-  value = "${module.vpc.aws_route_table_public_id}"
-}
-
-output "aws_route_table_private_id" {
-  value = "${module.vpc.aws_route_table_private_id}"
-}
-
-output "aws_subnet_bastion_availability_zone" {
-  value = "${module.vpc.aws_subnet_bastion_availability_zone}"
-}
+#output "aws_vpc_id" {
+#  value = "${module.vpc.aws_vpc_id}"
+#}
+#
+#output "aws_internet_gateway_id" {
+#  value = "${module.vpc.aws_internet_gateway_id}"
+#}
+#
+#output "aws_route_table_public_id" {
+#  value = "${module.vpc.aws_route_table_public_id}"
+#}
+#
+#output "aws_route_table_private_id" {
+#  value = "${module.vpc.aws_route_table_private_id}"
+#}
+#
+#output "aws_subnet_bastion_availability_zone" {
+#  value = "${module.vpc.aws_subnet_bastion_availability_zone}"
+#}
 
 module "cf" {
   source = "github.com/cloudfoundry-community/terraform-aws-cf-net"
