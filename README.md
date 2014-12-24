@@ -34,19 +34,20 @@ Optionally for using the `Unattended Install` instruction, install git.
 
 ### Easy install
 ```bash
-mkdir terraform-cf-install
-cd terraform-cf-install
+mkdir terraform-aws-cf-install
+cd terraform-aws-cf-install
 terraform apply github.com/cloudfoundry-community/terraform-aws-cf-install
 ```
 
 ### Unattended install
 ```bash
 git clone https://github.com/cloudfoundry-community/terraform-aws-cf-install
+cd terraform-aws-cf-install
 cp terraform.tfvars-example terraform.tfvars
 ```
 
-Next, edit terraform.tfvars using your favorite editor (`vim`), filling out the
-variables with your own values.
+Next, edit `terraform.tfvars` using your text editor and fill out the
+variables with your own values (AWS credentials, AWS region, etc).
 
 ```bash
 make plan
