@@ -24,7 +24,12 @@ An AWS SSH Key need to be created in desired region prior to running the followi
 commands. Note the name of the key and the path to the pem/private key file for
 use further down.
 
-You **must** being using at least terraform version 0.3.6.
+You **must** being using at least terraform version 0.3.6. Follow the `make dev` [build instructions](https://github.com/hashicorp/terraform/#developing-terraform) to ensure plugins are built too.
+
+```
+$ terraform -v
+Terraform v0.3.6.dev
+```
 
 Your chosen AWS Region must have sufficient quota to spin up all of the machines.
 While building various bits, the install process can use up to 13 VMs, settling
