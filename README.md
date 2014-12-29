@@ -24,7 +24,12 @@ An AWS SSH Key need to be created in desired region prior to running the followi
 commands. Note the name of the key and the path to the pem/private key file for
 use further down.
 
-You **must** being using at least terraform version 0.3.6.
+You **must** being using at least terraform version 0.3.6. Follow the `make dev` [build instructions](https://github.com/hashicorp/terraform/#developing-terraform) to ensure plugins are built too.
+
+```
+$ terraform -v
+Terraform v0.3.6.dev
+```
 
 Your chosen AWS Region must have sufficient quota to spin up all of the machines.
 While building various bits, the install process can use up to 13 VMs, settling
@@ -34,19 +39,20 @@ Optionally for using the `Unattended Install` instruction, install git.
 
 ### Easy install
 ```bash
-mkdir terraform-cf-install
-cd terraform-cf-install
+mkdir terraform-aws-cf-install
+cd terraform-aws-cf-install
 terraform apply github.com/cloudfoundry-community/terraform-aws-cf-install
 ```
 
 ### Unattended install
 ```bash
 git clone https://github.com/cloudfoundry-community/terraform-aws-cf-install
+cd terraform-aws-cf-install
 cp terraform.tfvars-example terraform.tfvars
 ```
 
-Next, edit terraform.tfvars using your favorite editor (`vim`), filling out the
-variables with your own values.
+Next, edit `terraform.tfvars` using your text editor and fill out the
+variables with your own values (AWS credentials, AWS region, etc).
 
 ```bash
 make plan
