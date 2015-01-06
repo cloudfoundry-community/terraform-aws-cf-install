@@ -45,7 +45,7 @@ cat <<EOF > ~/.gemrc
 gem: --no-document
 EOF
 
-# We use fog below, and bosh-bootstrap uses it as well
+# bosh-bootstrap uses fog
 cat <<EOF > ~/.fog
 :default:
     :aws_access_key_id: $AWS_KEY_ID
@@ -53,22 +53,7 @@ cat <<EOF > ~/.fog
     :region: $REGION
 EOF
 
-gem install fog
-
-cat <<EOF > /tmp/attach_volume.rb
-require 'fog'
-
-connection = Fog::Compute.new(:provider => 'AWS')
-vol = connection.create_volume("$BASTION_AZ", 40)
-sleep 10 #FIXME, probably with a loop that checks output or something
-connection.attach_volume("$BASTION_ID", vol.data[:body]["volumeId"], "xvdc")
-EOF
-
-ruby /tmp/attach_volume.rb
-
-# We sleep here to allow Amazon enough time to finish attaching the volume to
-# the instance
-sleep 10
+# This volume is created using terraform
 sudo /sbin/mkfs.ext4 /dev/xvdc
 sudo /sbin/e2label /dev/xvdc workspace
 echo 'LABEL=workspace /home/ubuntu/workspace ext4 defaults,discard 0 0' | sudo tee -a /etc/fstab
