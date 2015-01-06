@@ -34,10 +34,10 @@ unzip spiff_linux_amd64.zip
 sudo mv spiff /usr/local/bin/.
 popd
 
-# Set our default ruby to 2.1.3
+# Set our default ruby to 2.1.5
 source /home/ubuntu/.rvm/scripts/rvm
-rvm install ruby-2.1.3
-rvm alias create default ruby-2.1.3
+rvm install ruby-2.1.5
+rvm alias create default ruby-2.1.5
 
 # We will not be installing documentation for all of the gems we use, which cuts
 # down on both time and disk space used
@@ -45,7 +45,7 @@ cat <<EOF > ~/.gemrc
 gem: --no-document
 EOF
 
-# We use fog below, and bosh-bootstrap uses it as well
+# bosh-bootstrap uses fog
 cat <<EOF > ~/.fog
 :default:
     :aws_access_key_id: $AWS_KEY_ID
@@ -53,22 +53,7 @@ cat <<EOF > ~/.fog
     :region: $REGION
 EOF
 
-gem install fog
-
-cat <<EOF > /tmp/attach_volume.rb
-require 'fog'
-
-connection = Fog::Compute.new(:provider => 'AWS')
-vol = connection.create_volume("$BASTION_AZ", 40)
-sleep 10 #FIXME, probably with a loop that checks output or something
-connection.attach_volume("$BASTION_ID", vol.data[:body]["volumeId"], "xvdc")
-EOF
-
-ruby /tmp/attach_volume.rb
-
-# We sleep here to allow Amazon enough time to finish attaching the volume to
-# the instance
-sleep 10
+# This volume is created using terraform
 sudo /sbin/mkfs.ext4 /dev/xvdc
 sudo /sbin/e2label /dev/xvdc workspace
 echo 'LABEL=workspace /home/ubuntu/workspace ext4 defaults,discard 0 0' | sudo tee -a /etc/fstab
@@ -92,7 +77,7 @@ gem install bosh-bootstrap bosh_cli -f
 cat <<EOF > settings.yml
 ---
 bosh:
-  name: ${VPC}-keypair
+  name: bosh-${VPC}
 provider:
   name: aws
   credentials:
@@ -119,7 +104,7 @@ gem install bundler
 # There is a specific branch of cf-boshworkspace that we use for terraform. This
 # may change in the future if we come up with a better way to handle maintaining
 # configs in a git repo
-git clone -b cf-terraform http://github.com/cloudfoundry-community/cf-boshworkspace
+git clone -b ec2 http://github.com/cloudfoundry-community/cf-boshworkspace
 pushd cf-boshworkspace
 bundle install --path vendor/bundle
 mkdir -p ssh
@@ -129,23 +114,23 @@ mkdir -p ssh
 DIRECTOR_UUID=$(bundle exec bosh status | grep UUID | awk '{print $2}')
 
 # This is some hackwork to get the configs right. Could be changed in the future
-/bin/sed -i "s/REGION/${CF_SUBNET_AZ}/g" deployments/cf-aws-vpc.yml
-/bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-aws-vpc.yml
-/bin/sed -i "s/SUBNET_ID/${CF_SUBNET}/g" deployments/cf-aws-vpc.yml
-/bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-aws-vpc.yml
-/bin/sed -i "s/CF_DOMAIN/${CF_IP}.xip.io/g" deployments/cf-aws-vpc.yml
-/bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" deployments/cf-aws-vpc.yml
+/bin/sed -i "s/REGION/${CF_SUBNET_AZ}/g" deployments/cf-aws-tiny-ec2.yml
+/bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-aws-tiny-ec2.yml
+/bin/sed -i "s/SUBNET_ID/${CF_SUBNET}/g" deployments/cf-aws-tiny-ec2.yml
+/bin/sed -i "s/LB_SUBNET/${LB_SUBNET}/g" deployments/cf-aws-tiny-ec2.yml
+/bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-aws-tiny-ec2.yml
+/bin/sed -i "s/CF_DOMAIN/${CF_IP}.xip.io/g" deployments/cf-aws-tiny-ec2.yml
+/bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" deployments/cf-aws-tiny-ec2.yml
 
-/bin/sed -i "s/IPMASK/${IPMASK}/g" templates/cf-aws-networking.yml
-/bin/sed -i "s/CF_SG/${CF_SG}/g" templates/cf-aws-networking.yml
-/bin/sed -i "s/IPMASK/${IPMASK}/g" templates/cf-use-haproxy.yml
-/bin/sed -i "s/CF_SG/${CF_SG}/g" templates/cf-use-haproxy.yml
-/bin/sed -i "s/LB_SUBNET/${LB_SUBNET}/g" templates/cf-use-haproxy.yml
-/bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" templates/cf-test-errands.yml
+/bin/sed -i "s/IPMASK/${IPMASK}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
+/bin/sed -i "s/CF_SG/${CF_SG}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
+/bin/sed -i "s/LB_SUBNET/${LB_SUBNET}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
+/bin/sed -i "s/REGION/${CF_SUBNET_AZ}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
+/bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" templates/tiny/cf-test-errands.yml
 
 # Upload the bosh release, set the deployment, and execute
 bundle exec bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshrelease-cf-194.tgz
-bundle exec bosh deployment cf-aws-vpc
+bundle exec bosh deployment cf-aws-tiny-ec2
 bundle exec bosh prepare deployment
 bundle exec bosh -n deploy
 # Speaking of hack-work, bosh deploy often fails the first time, due to packet bats

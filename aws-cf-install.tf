@@ -60,6 +60,10 @@ resource "aws_instance" "bastion" {
   associate_public_ip_address = true
   security_groups = ["${module.vpc.aws_security_group_bastion_id}"]
   subnet_id = "${module.vpc.bastion_subnet}"
+  block_device {
+    device_name = "xvdc"
+    volume_size = "40"
+  }
 
   tags {
    Name = "inception server"
