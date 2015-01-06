@@ -104,7 +104,7 @@ gem install bundler
 # There is a specific branch of cf-boshworkspace that we use for terraform. This
 # may change in the future if we come up with a better way to handle maintaining
 # configs in a git repo
-git clone -b ec2 http://github.com/cloudfoundry-community/cf-boshworkspace
+git clone http://github.com/cloudfoundry-community/cf-boshworkspace
 pushd cf-boshworkspace
 bundle install --path vendor/bundle
 mkdir -p ssh
