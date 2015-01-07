@@ -54,8 +54,9 @@ sudo ln -s /home/ubuntu/workspace/tmp /tmp
 
 # bosh-bootstrap handles provisioning the microbosh machine and installing bosh
 # on it. This is very nice of bosh-bootstrap. Everyone make sure to thank bosh-bootstrap
-mkdir -p {bin,workspace/deployments,workspace/tools,workspace/deployments/bosh-bootstrap}
+mkdir -p {bin,workspace/deployments/microbosh,workspace/tools}
 pushd workspace/deployments
+pushd microbosh
 cat <<EOF > settings.yml
 ---
 bosh:
