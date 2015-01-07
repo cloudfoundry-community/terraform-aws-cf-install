@@ -11,11 +11,9 @@ We rely on two other repositories to do the bulk of the work. The [terraform-aws
 Upstream Terraform issues
 -------------------------
 
-During the development of this project (including the modules above) we have discovered some terraform bugs, some things we've worked around, and some issues that would be nice to implement.
+During the development of this project (including the modules above) we have discovered some terraform bugs, some things we've worked around, and some issues that would be nice to implement (removed once resolved).
 
--	release of v0.3.6 - to include [![hashicorp/terraform/issues/659](https://github-shields.com/github/hashicorp/terraform/issues/659.svg)](https://github-shields.com/github/hashicorp/terraform/issues/659) - requires users to build their own `terraform` CLI from source (see below)
 -	[![hashicorp/terraform/issues/745](https://github-shields.com/github/hashicorp/terraform/issues/745.svg)](https://github-shields.com/github/hashicorp/terraform/issues/745) - currently we can only bootstrap BOSH and Cloud Foundry inside the "resource" for creation of the bastian VM. We'd like to reuse the bastian VM and allow these terraform projects be more modular.
--	[![hashicorp/terraform/issues/746](https://github-shields.com/github/hashicorp/terraform/issues/746.svg)](https://github-shields.com/github/hashicorp/terraform/issues/746) - our workaround is to run some Ruby code during bastion VM provisioning to ask AWS for the EBS volume
 
 Deploy Cloud Foundry
 --------------------
