@@ -24,11 +24,11 @@ Deploy Cloud Foundry
 
 The one step that isn't automated is the creation of SSH keys. We are waiting for that feature to be [added to terraform](https://github.com/hashicorp/terraform/issues/28). An AWS SSH Key need to be created in desired region prior to running the following commands. Note the name of the key and the path to the pem/private key file for use further down.
 
-You **must** being using at least terraform version 0.3.6. Follow the `make dev` [build instructions](https://github.com/hashicorp/terraform/#developing-terraform) to ensure plugins are built too.
+You **must** being using at least terraform version 0.3.6.
 
 ```
 $ terraform -v
-Terraform v0.3.6.dev
+Terraform v0.3.6
 ```
 
 Your chosen AWS Region must have sufficient quota to spin up all of the machines. While building various bits, the install process can use up to 13 VMs, settling down to use 7 machines long-term (more, if you want more runners).
@@ -48,7 +48,7 @@ terraform apply github.com/cloudfoundry-community/terraform-aws-cf-install
 ```bash
 git clone https://github.com/cloudfoundry-community/terraform-aws-cf-install
 cd terraform-aws-cf-install
-cp terraform.tfvars-example terraform.tfvars
+cp terraform.tfvars.example terraform.tfvars
 ```
 
 Next, edit `terraform.tfvars` using your text editor and fill out the variables with your own values (AWS credentials, AWS region, etc).
@@ -61,7 +61,7 @@ make apply
 After Initial Install
 ---------------------
 
-At the end of the output of the terraform run, there will be a section called `Outputs` that will have at least `bastion_ip` and an IP address. If not, or if you cleared the terminal without noting it, you can log into the AWS console and look for an instance called 'inception server', with the `bastion` security group. Use the public IP associated with that instance, and ssh in as the ubuntu user, using the ssh key listed as `aws_key_path` in your configuration (if you used the Unattended Install).
+At the end of the output of the terraform run, there will be a section called `Outputs` that will have at least `bastion_ip` and an IP address. If not, or if you cleared the terminal without noting it, you can log into the AWS console and look for an instance called 'bastion', with the `bastion` security group. Use the public IP associated with that instance, and ssh in as the ubuntu user, using the ssh key listed as `aws_key_path` in your configuration (if you used the Unattended Install).
 
 ```
 ssh -i ~/.ssh/example.pm ubuntu@54.1.2.3

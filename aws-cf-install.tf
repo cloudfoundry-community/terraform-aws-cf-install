@@ -66,7 +66,7 @@ resource "aws_instance" "bastion" {
   }
 
   tags {
-   Name = "inception server"
+   Name = "bastion"
   }
 
   connection {
