@@ -19,6 +19,13 @@ During the development of this project (including the modules above) we have dis
 
 -	[![hashicorp/terraform/issues/745](https://github-shields.com/github/hashicorp/terraform/issues/745.svg)](https://github-shields.com/github/hashicorp/terraform/issues/745) - currently we can only bootstrap BOSH and Cloud Foundry inside the "resource" for creation of the bastian VM. We'd like to reuse the bastian VM and allow these terraform projects be more modular.
 
+Upstream Cloud Foundry issues
+-----------------------------
+
+Issues/Pull Requests pending across Cloud Foundry projects:
+
+-	[![cloudfoundry/cf-release/pull/592](https://github-shields.com/github/cloudfoundry/cf-release/pull/592.svg)](https://github-shields.com/github/cloudfoundry/cf-release/pull/592) - there is no need to pre-provision a blank VM to run errands
+
 Deploy Cloud Foundry
 --------------------
 
