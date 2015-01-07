@@ -92,13 +92,13 @@ mkdir -p ssh
 DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 
 # This is some hackwork to get the configs right. Could be changed in the future
-/bin/sed -i "s/REGION/${CF_SUBNET_AZ}/g" deployments/cf-aws-tiny-ec2.yml
-/bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-aws-tiny-ec2.yml
-/bin/sed -i "s/SUBNET_ID/${CF_SUBNET}/g" deployments/cf-aws-tiny-ec2.yml
-/bin/sed -i "s/LB_SUBNET/${LB_SUBNET}/g" deployments/cf-aws-tiny-ec2.yml
-/bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-aws-tiny-ec2.yml
-/bin/sed -i "s/CF_DOMAIN/${CF_IP}.xip.io/g" deployments/cf-aws-tiny-ec2.yml
-/bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" deployments/cf-aws-tiny-ec2.yml
+/bin/sed -i "s/REGION/${CF_SUBNET_AZ}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/SUBNET_ID/${CF_SUBNET}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/LB_SUBNET/${LB_SUBNET}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_DOMAIN/${CF_IP}.xip.io/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" deployments/cf-aws-tiny.yml
 
 /bin/sed -i "s/IPMASK/${IPMASK}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
 /bin/sed -i "s/CF_SG/${CF_SG}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
@@ -108,7 +108,7 @@ DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 
 # Upload the bosh release, set the deployment, and execute
 bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshrelease-cf-194.tgz
-bosh deployment cf-aws-tiny-ec2
+bosh deployment cf-aws-tiny
 bosh prepare deployment
 bosh -n deploy
 
