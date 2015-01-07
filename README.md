@@ -6,6 +6,10 @@ This is part of a project that aims to create a one click deploy of Cloud Foundr
 Architecture
 ------------
 
+This terraform project will deploy the following networking and instances (pretty diagram from https://ide.visualops.io):
+
+![](http://cl.ly/image/232j3o2A1X2o/cf-tiny-deployment.png)
+
 We rely on two other repositories to do the bulk of the work. The [terraform-aws-vpc](https://github.com/cloudfoundry-community/terraform-aws-vpc) repo creates the base VPC infrastructure, including a bastion subnet, the`microbosh` subnet, a NAT server, various route tables, and the VPC itself. Then the [terraform-aws-cf-net](https://github.com/cloudfoundry-community/terraform-aws-cf-net) repo creates a loadbalancer subnet, two runtime subnets, `cf` related security groups, and the elastic IP used by `cf`. This gives us the flexibility to use the`terraform-aws-cf-net` module multiple times, to have a staging and production cf within the same VPC, sharing a single microbosh instance.
 
 Upstream Terraform issues
