@@ -40,6 +40,15 @@ $ terraform -v
 Terraform v0.3.6
 ```
 
+You can install terraform 0.3.6+ via the https://bosh-cli.cfapps.io installer for BOSH CLI!
+
+```
+curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-bosh/master/scripts/installer | bash
+```
+
+Then restart your shell to pick up the new `$PATH`.
+
+
 Your chosen AWS Region must have sufficient quota to spin up all of the machines. While building various bits, the install process can use up to 13 VMs, settling down to use 7 machines long-term (more, if you want more runners).
 
 Optionally for using the `Unattended Install` instruction, install git.
