@@ -113,9 +113,10 @@ bosh deployment cf-aws-tiny
 bosh prepare deployment
 bosh -n deploy
 
-# Speaking of hack-work, bosh deploy often fails the first time, due to packet bats
+# Speaking of hack-work, bosh deploy often fails the first or even second time, due to packet bats
 bosh -n deploy
-# We run it twice (it's idempotent) so that you don't have to
+bosh -n deploy
+# We run it thrice (it's idempotent) so that you don't have to
 
 # FIXME: enable this again when smoke_tests work
 # bosh run errand smoke_tests
