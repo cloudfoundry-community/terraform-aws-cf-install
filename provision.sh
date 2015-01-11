@@ -111,12 +111,17 @@ DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshrelease-cf-194.tgz
 bosh deployment cf-aws-tiny
 bosh prepare deployment
-bosh -n deploy
 
 # Speaking of hack-work, bosh deploy often fails the first or even second time, due to packet bats
-bosh -n deploy
-bosh -n deploy
-# We run it thrice (it's idempotent) so that you don't have to
+# We run it up to three times (it's idempotent) so that you don't have to
+counter=1
+while [ $x -lt ]; do
+  bosh -n deploy
+  if [ $? -eq 0 ]; then
+    break
+  fi
+  x=$(( $x + 1 ))
+done
 
 # FIXME: enable this again when smoke_tests work
 # bosh run errand smoke_tests
