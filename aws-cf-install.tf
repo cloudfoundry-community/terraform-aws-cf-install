@@ -38,6 +38,10 @@ output "aws_subnet_bastion_availability_zone" {
   value = "${module.vpc.aws_subnet_bastion_availability_zone}"
 }
 
+output "cf_admin_pass" {
+  value = "${var.cf_admin_pass}"
+}
+
 module "cf" {
   source = "github.com/cloudfoundry-community/terraform-aws-cf-net"
   network = "${var.network}"
