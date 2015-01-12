@@ -61,6 +61,10 @@ module "cf" {
   aws_subnet_lb_availability_zone = "${module.vpc.aws_subnet_bastion_availability_zone}"
 }
 
+output "cf_api" {
+	value = "api.${module.cf.aws_eip_cf_public_ip}.xip.io"
+}
+
 resource "aws_instance" "bastion" {
   ami = "${lookup(var.aws_ubuntu_ami, var.aws_region)}"
   instance_type = "m1.medium"
