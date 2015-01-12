@@ -95,6 +95,8 @@ To login to Cloud Foundry as an administrator:
 cf login --skip-ssl-validation -a $(terraform output cf_api) -u admin -p $(terraform output cf_admin_pass)
 ```
 
+You can also log into the cf api from the inception server itself, though you have to manually replace the calls to terraform from above with the actual values.
+
 Cleanup / Tear down
 -------------------
 
