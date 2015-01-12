@@ -42,6 +42,10 @@ output "cf_admin_pass" {
   value = "${var.cf_admin_pass}"
 }
 
+output "aws_key_path" {
+  value = "${var.aws_key_path}"
+}
+
 module "cf" {
   source = "github.com/cloudfoundry-community/terraform-aws-cf-net"
   network = "${var.network}"
