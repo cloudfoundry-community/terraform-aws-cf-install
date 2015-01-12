@@ -48,7 +48,6 @@ curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-bosh/
 
 Then restart your shell to pick up the new `$PATH`.
 
-
 Your chosen AWS Region must have sufficient quota to spin up all of the machines. While building various bits, the install process can use up to 13 VMs, settling down to use 7 machines long-term (more, if you want more runners).
 
 Optionally for using the `Unattended Install` instruction, install git.
@@ -82,12 +81,22 @@ After Initial Install
 At the end of the output of the terraform run, there will be a section called `Outputs` that will have at least `bastion_ip` and an IP address. If not, or if you cleared the terminal without noting it, you can log into the AWS console and look for an instance called 'bastion', with the `bastion` security group. Use the public IP associated with that instance, and ssh in as the ubuntu user, using the ssh key listed as `aws_key_path` in your configuration (if you used the Unattended Install).
 
 ```
-ssh -i ~/.ssh/example.pm ubuntu@54.1.2.3
+ssh -i ~/.ssh/example.pem ubuntu@$(terraform output bastion_ip)
 ```
 
 Once in, you can look in `workspace/deployments/cf-boshworkspace/` for the bosh deployment manifest and template files. Any further updates or changes to your microbosh or Cloud Foundry environment will be done manually using this machine as your work space. Terraform provisioning scripts are not intended for long-term updates or maintenance.
 
-### Cleanup / Tear down
+Cloud Foundry
+-------------
+
+To login to Cloud Foundry as an administrator:
+
+```
+cf login --skip-ssl-validation -a $(terraform output cf_api) -u admin -p $(terraform output cf_admin_pass)
+```
+
+Cleanup / Tear down
+-------------------
 
 Terraform does not yet quite cleanup after itself. You can run `make destroy` to get quite a few of the resources you created, but you will probably have to manually track down some of the bits and manually remove them. Once you have done so, run `make clean` to remove the local cache and status files, allowing you to run everything again without errors.
 
