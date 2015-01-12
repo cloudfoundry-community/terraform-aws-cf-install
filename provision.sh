@@ -125,3 +125,8 @@ done
 
 # FIXME: enable this again when smoke_tests work
 # bosh run errand smoke_tests
+
+# Install the cf client for use on the bastion server
+wget -O /tmp/cf.tgz 'https://cli.run.pivotal.io/stable?release=linux64-binary&source=github'
+tar -zxvf /tmp/cf.tgz
+mv /tmp/cf /usr/local/bin/
