@@ -112,6 +112,10 @@ bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshr
 bosh deployment cf-aws-tiny
 bosh prepare deployment
 
+# We locally commit the changes to the repo, so that errant git checkouts don't
+# cause havok
+git commit -am 'commit of the local deployment configs'
+
 # Speaking of hack-work, bosh deploy often fails the first or even second time, due to packet bats
 # We run it three times (it's idempotent) so that you don't have to
 bosh -n deploy
