@@ -17,6 +17,7 @@ Upstream Terraform issues
 
 During the development of this project (including the modules above) we have discovered some terraform bugs, some things we've worked around, and some issues that would be nice to implement (removed once resolved).
 
+- [![hashicorp/terraform/issues/776](https://github-shields.com/github/hashicorp/terraform/issues/776.svg)](https://github-shields.com/github/hashicorp/terraform/issues/776) - currently, both the released version of terraform and HEAD does not work with our configs. You must compile and use https://github.com/hashicorp/terraform/commit/fd6382fbafe0be8547eabbb279bbb6f095c87096 in order for this to work.
 -	[![hashicorp/terraform/issues/745](https://github-shields.com/github/hashicorp/terraform/issues/745.svg)](https://github-shields.com/github/hashicorp/terraform/issues/745) - currently we can only bootstrap BOSH and Cloud Foundry inside the "resource" for creation of the bastian VM. We'd like to reuse the bastian VM and allow these terraform projects be more modular.
 
 Upstream Cloud Foundry issues
