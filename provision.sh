@@ -8,13 +8,16 @@ VPC=${4}
 BOSH_SUBNET=${5}
 IPMASK=${6}
 CF_IP=${7}
-CF_SUBNET=${8}
-CF_SUBNET_AZ=${9}
-BASTION_AZ=${10}
-BASTION_ID=${11}
-LB_SUBNET=${12}
-CF_SG=${13}
-CF_ADMIN_PASS=${14}
+CF_SUBNET1=${8}
+CF_SUBNET1_AZ=${9}
+CF_SUBNET2=${10}
+CF_SUBNET2_AZ=${11}
+BASTION_AZ=${12}
+BASTION_ID=${13}
+LB_SUBNET1=${14}
+LB_SUBNET1_AZ=${15}
+CF_SG=${16}
+CF_ADMIN_PASS=${17}
 
 # Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
 cd $HOME
@@ -93,19 +96,18 @@ mkdir -p ssh
 DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 
 # This is some hackwork to get the configs right. Could be changed in the future
-/bin/sed -i "s/REGION/${CF_SUBNET_AZ}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_SUBNET2_AZ/${CF_SUBNET2_AZ}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/SUBNET_ID/${CF_SUBNET}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/LB_SUBNET/${LB_SUBNET}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_SUBNET1/${CF_SUBNET1}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_SUBNET2/${CF_SUBNET2}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/LB_SUBNET1/${LB_SUBNET1}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_DOMAIN/${CF_IP}.xip.io/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" deployments/cf-aws-tiny.yml
-
-/bin/sed -i "s/IPMASK/${IPMASK}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
-/bin/sed -i "s/CF_SG/${CF_SG}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
-/bin/sed -i "s/LB_SUBNET/${LB_SUBNET}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
-/bin/sed -i "s/REGION/${CF_SUBNET_AZ}/g" templates/tiny/cf-aws-ec2-tiny-networking.yml
-/bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" templates/tiny/cf-test-errands.yml
+/bin/sed -i "s/IPMASK/${IPMASK}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_SG/${CF_SG}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/LB_SUBNET1_AZ/${LB_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
 
 # Upload the bosh release, set the deployment, and execute
 bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshrelease-cf-194.tgz
