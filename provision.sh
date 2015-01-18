@@ -98,6 +98,7 @@ DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 # This is some hackwork to get the configs right. Could be changed in the future
 /bin/sed -i "s/CF_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_SUBNET2_AZ/${CF_SUBNET2_AZ}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/LB_SUBNET1_AZ/${LB_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_SUBNET1/${CF_SUBNET1}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_SUBNET2/${CF_SUBNET2}/g" deployments/cf-aws-tiny.yml
