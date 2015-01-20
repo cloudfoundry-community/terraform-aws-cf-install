@@ -32,11 +32,6 @@ ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
 curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-bosh/master/scripts/installer http://bosh-cli.cloudfoundry.org | sudo bash
 export PATH=$PATH:/usr/bin/traveling-bosh
-bosh -v
-
-curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-cf-admin/master/scripts/installer | sudo bash
-export PATH=$PATH:/usr/bin/traveling-cf-admin
-uaac -v
 
 # We use fog below, and bosh-bootstrap uses it as well
 cat <<EOF > ~/.fog
@@ -132,3 +127,8 @@ bosh -n deploy
 
 # FIXME: enable this again when smoke_tests work
 # bosh run errand smoke_tests
+
+# Install the cf client for use on the bastion server
+wget -O /tmp/cf.tgz 'https://cli.run.pivotal.io/stable?release=linux64-binary&source=github'
+tar -zxvf /tmp/cf.tgz
+sudo mv cf /usr/local/bin/
