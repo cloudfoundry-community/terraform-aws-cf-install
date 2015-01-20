@@ -33,7 +33,10 @@ sudo apt-get install -y git vim-nox unzip
 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
+
+set +e # ignore the errors from the bad HTML errors from downloading
 curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-bosh/master/scripts/installer http://bosh-cli.cloudfoundry.org | sudo bash
+set -e
 export PATH=$PATH:/usr/bin/traveling-bosh
 
 # We use fog below, and bosh-bootstrap uses it as well
