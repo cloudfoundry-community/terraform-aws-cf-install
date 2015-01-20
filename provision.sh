@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# fail immediately on error
+set -e
+
 # Variables passed in from terraform, see aws-vpc.tf, the "remote-exec" provisioner
 AWS_KEY_ID=${1}
 AWS_ACCESS_KEY=${2}
