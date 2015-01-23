@@ -104,7 +104,7 @@ DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 
 # If CF_DOMAIN is set to XIP, then use XIP.IO. Otherwise, use the variable
 if [ $CF_DOMAIN == "XIP" ]; then
-  CF_DOMAIN = "${CF_IP}.xip.io"
+  CF_DOMAIN="${CF_IP}.xip.io"
 fi
 
 
