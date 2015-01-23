@@ -105,5 +105,5 @@ output "bastion_ip" {
 }
 
 output "cf_domain" {
-  value = "${var.cf_domain}
+  value = "${var.cf_domain}"
 }
