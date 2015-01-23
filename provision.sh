@@ -21,6 +21,7 @@ LB_SUBNET1=${14}
 LB_SUBNET1_AZ=${15}
 CF_SG=${16}
 CF_ADMIN_PASS=${17}
+CF_DOMAIN=${18}
 
 # Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
 cd $HOME
@@ -101,6 +102,12 @@ mkdir -p ssh
 # know it's hitting the right microbosh instance
 DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 
+# If CF_DOMAIN is set to XIP, then use XIP.IO. Otherwise, use the variable
+if [ $CF_DOMAIN == "XIP" ]; then
+  CF_DOMAIN = "${CF_IP}.xip.io"
+fi
+
+
 # This is some hackwork to get the configs right. Could be changed in the future
 /bin/sed -i "s/CF_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_SUBNET2_AZ/${CF_SUBNET2_AZ}/g" deployments/cf-aws-tiny.yml
@@ -110,7 +117,7 @@ DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 /bin/sed -i "s/CF_SUBNET2/${CF_SUBNET2}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/LB_SUBNET1/${LB_SUBNET1}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/CF_DOMAIN/${CF_IP}.xip.io/g" deployments/cf-aws-tiny.yml
+/bin/sed -i "s/CF_DOMAIN/${CF_DOMAIN}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/IPMASK/${IPMASK}/g" deployments/cf-aws-tiny.yml
 /bin/sed -i "s/CF_SG/${CF_SG}/g" deployments/cf-aws-tiny.yml

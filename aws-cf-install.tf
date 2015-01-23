@@ -94,7 +94,7 @@ resource "aws_instance" "bastion" {
   provisioner "remote-exec" {
     inline = [
         "chmod +x /home/ubuntu/provision.sh",
-        "/home/ubuntu/provision.sh ${var.aws_access_key} ${var.aws_secret_key} ${var.aws_region} ${module.vpc.aws_vpc_id} ${module.vpc.aws_subnet_microbosh_id} ${var.network} ${module.cf.aws_eip_cf_public_ip} ${module.cf.aws_subnet_cfruntime-2a_id} ${module.cf.aws_subnet_cfruntime-2a_availability_zone} ${module.cf.aws_subnet_cfruntime-2b_id} ${module.cf.aws_subnet_cfruntime-2b_availability_zone} ${aws_instance.bastion.availability_zone} ${aws_instance.bastion.id} ${module.cf.aws_subnet_lb_id} ${module.cf.aws_subnet_lb_availability_zone} ${module.cf.aws_security_group_cf_name} ${var.cf_admin_pass}",
+        "/home/ubuntu/provision.sh ${var.aws_access_key} ${var.aws_secret_key} ${var.aws_region} ${module.vpc.aws_vpc_id} ${module.vpc.aws_subnet_microbosh_id} ${var.network} ${module.cf.aws_eip_cf_public_ip} ${module.cf.aws_subnet_cfruntime-2a_id} ${module.cf.aws_subnet_cfruntime-2a_availability_zone} ${module.cf.aws_subnet_cfruntime-2b_id} ${module.cf.aws_subnet_cfruntime-2b_availability_zone} ${aws_instance.bastion.availability_zone} ${aws_instance.bastion.id} ${module.cf.aws_subnet_lb_id} ${module.cf.aws_subnet_lb_availability_zone} ${module.cf.aws_security_group_cf_name} ${var.cf_admin_pass} ${var.cf_domain}",
     ]
   }
 
@@ -102,4 +102,8 @@ resource "aws_instance" "bastion" {
 
 output "bastion_ip" {
   value = "${aws_instance.bastion.public_ip}"
+}
+
+output "cf_domain" {
+  value = "${var.cf_domain}
 }
