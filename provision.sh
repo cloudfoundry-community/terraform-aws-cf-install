@@ -27,7 +27,7 @@ CF_DOMAIN=${18}
 cd $HOME
 
 sudo apt-get update
-sudo apt-get install -y git vim-nox unzip
+sudo apt-get install -y git vim-nox unzip tree
 
 # Generate the key that will be used to ssh between the bastion and the
 # microbosh machine
