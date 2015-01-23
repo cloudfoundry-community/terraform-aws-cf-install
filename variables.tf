@@ -12,6 +12,10 @@ variable "cf_admin_pass" {
   default = "c1oudc0wc1oudc0w"
 }
 
+variable "cf_domain" {
+  default = "XIP"
+}
+
 variable "aws_centos_ami" {
     default = {
         us-east-1 = "ami-00a11e68"
