@@ -116,6 +116,19 @@ aws_route_table_private_id
 aws_subnet_bastion_availability_zone
 ```
 
+### Configuration
+
+Look in `variables.tf` to see all of the variables that can be set or overriden. The mandatory variables are:
+
+```
+source = "github.com/cloudfoundry-community/terraform-aws-cf-install" # Or your own source, if you fork the repo
+aws_access_key = "${var.aws_access_key}" # Provided by Amazon
+aws_secret_key = "${var.aws_secret_key}" # Provided by Amazon
+aws_key_name = "${var.aws_key_name}" # The "name" of the ssh key to use in the AWS Console under EC2 -> Network & Security -> Key Pairs
+aws_key_path = "${var.aws_key_path}" # Literal path to pem file on the computer running Terraform - /home/user/keys/exapmle.pem
+network = "${var.network}" # The first two octects to use within the VPC, e.g. 10.0 or 10.55
+```
+
 ### Example usage
 
 Note that this does not actually create the second `cf` instance, that has to be done manually. You should be able to take the resources created by the `cf-staging` module, copy the cf-boshbootstrap directory on the bastion server, and search and replace with the new values. Also, you can set the `offset` value to whatever you want, from 1 to 24.
@@ -135,6 +148,7 @@ module "cf-install" {
   aws_secret_key = "${var.aws_secret_key}"
   aws_region = "${var.aws_region}"
   aws_key_path = "${var.aws_key_path}"
+  cf_install = "prod.mycloudfoundry.domain"
 }
 
 module "cf-staging" {
@@ -151,5 +165,6 @@ module "cf-staging" {
   aws_route_table_private_id = "${module.cf-install.aws_route_table_private_id}"
   aws_subnet_lb_availability_zone = "${module.cf-install.aws_subnet_bastion_availability_zone}"
   offset = "20"
+  cf_install = "staging.mycloudfoundry.domain"
 }
 ```
