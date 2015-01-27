@@ -124,7 +124,7 @@ fi
 /bin/sed -i "s/LB_SUBNET1_AZ/${LB_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
 
 # Upload the bosh release, set the deployment, and execute
-bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshrelease-cf-194.tgz
+bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshrelease-cf-196.tgz
 bosh deployment cf-aws-tiny
 bosh prepare deployment
 
