@@ -16,6 +16,9 @@ variable "cf_domain" {
   default = "XIP"
 }
 
+variable "aws_vpc_id" {}
+variable "aws_internet_gateway_id" {}
+
 variable "cf_boshworkspace_version" {
   default = "v1.0.0"
 }
