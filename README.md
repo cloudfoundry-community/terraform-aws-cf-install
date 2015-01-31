@@ -49,9 +49,11 @@ curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-bosh/
 
 Then restart your shell to pick up the new `$PATH`.
 
-Your chosen AWS Region must have sufficient quota to spin up all of the machines. While building various bits, the install process can use up to 13 VMs, settling down to use 7 machines long-term (more, if you want more runners).
+Your chosen AWS Region must have sufficient quota to spin up **all** of the machines. While building various bits, the install process can use up to 13 VMs, settling down to use 7 machines long-term (more, if you want more runners).
 
 Optionally for using the `Unattended Install` instruction, install git.
+
+#### NOTE: Building the entire Cloud Foundry cluster will take a little over an hour! It hasn't hung (probably), it just takes a little while to do ALL THE THINGS.
 
 ### Easy install
 
