@@ -47,8 +47,7 @@ output "aws_key_path" {
 }
 
 module "cf" {
-  #source = "github.com/cloudfoundry-community/terraform-aws-cf-net"
-  source = "github.com/mjseid/terraform-aws-cf-net"
+  source = "github.com/cloudfoundry-community/terraform-aws-cf-net"
   network = "${var.network}"
   aws_key_name = "${var.aws_key_name}"
   aws_access_key = "${var.aws_access_key}"
