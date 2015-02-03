@@ -47,7 +47,8 @@ output "aws_key_path" {
 }
 
 module "cf" {
-  source = "github.com/cloudfoundry-community/terraform-aws-cf-net"
+  #source = "github.com/cloudfoundry-community/terraform-aws-cf-net"
+  source = "github.com/mjseid/terraform-aws-cf-net"
   network = "${var.network}"
   aws_key_name = "${var.aws_key_name}"
   aws_access_key = "${var.aws_access_key}"
@@ -59,15 +60,17 @@ module "cf" {
   aws_route_table_public_id = "${module.vpc.aws_route_table_public_id}"
   aws_route_table_private_id = "${module.vpc.aws_route_table_private_id}"
   aws_subnet_lb_availability_zone = "${module.vpc.aws_subnet_bastion_availability_zone}"
+  aws_subnet_cfruntime-2a_availability_zone = "${var.cf1_az}"
+  aws_subnet_cfruntime-2b_availability_zone = "${var.cf2_az}"
 }
 
 output "cf_api" {
-	value = "api.run.${module.cf.aws_eip_cf_public_ip}.xip.io"
+	value = "api.${module.cf.aws_eip_cf_public_ip}.xip.io"
 }
 
 resource "aws_instance" "bastion" {
   ami = "${lookup(var.aws_ubuntu_ami, var.aws_region)}"
-  instance_type = "m1.medium"
+  instance_type = "m3.medium"
   key_name = "${var.aws_key_name}"
   associate_public_ip_address = true
   security_groups = ["${module.vpc.aws_security_group_bastion_id}"]
