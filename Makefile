@@ -17,3 +17,6 @@ clean:
 	rm -f terraform.tfplan
 	rm -f terraform.tfstate
 	rm -fR .terraform/
+
+test:
+	./scripts/testPlan

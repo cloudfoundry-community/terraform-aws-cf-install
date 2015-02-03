@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+exitcode=0
+TFILE=`mktemp`
+GREEN="\e[1;34m"
+RED="\e[0;31m"
+RESET="\e[0m"
+
+# $1 = exit code (will exit testing if non-zero)
+# $2 = description of the test
+# $3 = output of the test
+CLEANUP () {
+  rm -f $TFILE
+  if [ $1 -ne 0 ]; then
+    echo -e "$RED test '$2' failed: $RESET\n $3"
+    exit $1
+  fi
+}
+
+# Pre-testing cleanup
+rm -fR .terraform/modules/
+
+desc="Can we find the terraform binary?"
+OUTPUT=$(which terraform)
+CLEANUP "$?" "$desc" "Couldn't find terraform. Is it in your PATH?"
+
+desc="Can we fetch the dependencies?"
+OUTPUT=$(terraform get -update)
+CLEANUP "$?" "$desc" "Unable to fetch the modules we depend on"
+
+desc="Does the plan compile?"
+OUTPUT=$(terraform plan -var-file terraform.tfvars.example)
+CLEANUP "$?" "$desc" "$OUTPUT"
+
+desc="Did the baseline terraform plan change?"
+terraform plan -var-file terraform.tfvars.example &> $TFILE
+OUTPUT=$(diff test-fixtures/terraform.testplan $TFILE)
+CLEANUP "$?" "$desc" "$OUTPUT"
+
+# If we got here, all the tests passed
+echo -e "$GREEN All tests passed $RESET"
+exit 0
