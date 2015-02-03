@@ -64,7 +64,7 @@ module "cf" {
 }
 
 output "cf_api" {
-	value = "api.run${module.cf.aws_eip_cf_public_ip}.xip.io"
+	value = "api.run.${module.cf.aws_eip_cf_public_ip}.xip.io"
 }
 
 resource "aws_instance" "bastion" {
