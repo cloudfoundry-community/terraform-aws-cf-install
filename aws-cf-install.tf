@@ -59,6 +59,8 @@ module "cf" {
   aws_route_table_public_id = "${module.vpc.aws_route_table_public_id}"
   aws_route_table_private_id = "${module.vpc.aws_route_table_private_id}"
   aws_subnet_lb_availability_zone = "${module.vpc.aws_subnet_bastion_availability_zone}"
+  aws_subnet_cfruntime-2a_availability_zone = "${var.cf1_az}"
+  aws_subnet_cfruntime-2b_availability_zone = "${var.cf2_az}"
 }
 
 output "cf_api" {
