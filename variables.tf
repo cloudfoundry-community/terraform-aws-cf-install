@@ -5,6 +5,12 @@ variable "aws_key_name" {}
 variable "aws_region" {
   default = "us-west-2"
 }
+variable "cf1_az" {
+  default = "us-west-2a"
+}
+variable "cf2_az" {
+  default = "us-west-2b"
+}
 variable "network" {
 	default = "10.10"
 }
