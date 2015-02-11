@@ -18,10 +18,11 @@ CF_SUBNET2_AZ=${11}
 BASTION_AZ=${12}
 BASTION_ID=${13}
 LB_SUBNET1=${14}
-CF_AG=${15}
+CF_SG=${15}
 CF_ADMIN_PASS=${16}
 CF_DOMAIN=${17}
 CF_BOSHWORKSPACE_VERSION=${18}
+CF_SIZE=${19}
 
 # Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
 cd $HOME
@@ -125,7 +126,7 @@ fi
 
 # Upload the bosh release, set the deployment, and execute
 bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshrelease-cf-196.tgz
-bosh deployment cf-aws-tiny
+bosh deployment cf-aws-${CF_SIZE}
 bosh prepare deployment
 
 # We locally commit the changes to the repo, so that errant git checkouts don't

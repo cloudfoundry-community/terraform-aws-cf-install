@@ -26,6 +26,10 @@ variable "cf_boshworkspace_version" {
   default = "v1.0.0"
 }
 
+variable "cf_size" {
+  default = "tiny"
+}
+
 variable "aws_centos_ami" {
     default = {
         us-east-1 = "ami-00a11e68"
