@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 exitcode=0
-TFILE=`mktemp`
+TFILE=`mktemp -t terraform-aws-cf-install.XXX`
 GREEN="\e[1;34m"
 RED="\e[0;31m"
 RESET="\e[0m"
