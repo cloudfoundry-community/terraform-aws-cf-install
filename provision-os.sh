@@ -104,6 +104,7 @@ fi
 /bin/sed -i "s/OS_USERNAME/${OS_USERNAME}/g" deployments/cf-os-tiny.yml
 /bin/sed -i "s/OS_TENANT/${OS_TENANT}/g" deployments/cf-os-tiny.yml
 /bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-os-tiny.yml
+/bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-os-tiny.yml
 
 
 # Upload the bosh release, set the deployment, and execute
@@ -113,7 +114,7 @@ bosh prepare deployment
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
-git commit -am 'commit of the local deployment configs'
+#git commit -am 'commit of the local deployment configs'
 
 # Speaking of hack-work, bosh deploy often fails the first or even second time, due to packet bats
 # We run it three times (it's idempotent) so that you don't have to
