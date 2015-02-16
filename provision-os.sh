@@ -69,13 +69,13 @@ provider:
     boot_from_volume: false
 address:
   subnet_id: ${CF_SUBNET1}
-  ip: ${IPMASK}.1.4
+  ip: ${IPMASK}.2.4
 EOF
 
 bosh bootstrap deploy
 
 # We've hardcoded the IP of the microbosh machine, because convenience
-bosh -n target https://${IPMASK}.1.4:25555
+bosh -n target https://${IPMASK}.2.4:25555
 bosh login admin admin
 popd
 
