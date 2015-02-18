@@ -104,6 +104,7 @@ fi
 /bin/sed -i "s/OS_USERNAME/${OS_USERNAME}/g" deployments/cf-os-tiny.yml
 /bin/sed -i "s/OS_TENANT/${OS_TENANT}/g" deployments/cf-os-tiny.yml
 /bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-os-tiny.yml
+/bin/sed -i "s/CF_DOMAIN/${CF_DOMAIN}/g" deployments/cf-os-tiny.yml
 /bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-os-tiny.yml
 
 
