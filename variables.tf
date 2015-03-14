@@ -3,13 +3,13 @@ variable "aws_secret_key" {}
 variable "aws_key_path" {}
 variable "aws_key_name" {}
 variable "aws_region" {
-  default = "us-west-2"
+  default = "us-east-1"
 }
 variable "cf1_az" {
-  default = "us-west-2a"
+  default = "us-east-1a"
 }
 variable "cf2_az" {
-  default = "us-west-2b"
+  default = "us-east-1d"
 }
 variable "network" {
 	default = "10.10"
