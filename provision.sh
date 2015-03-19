@@ -94,7 +94,7 @@ mkdir -p ${HOME}/workspace
 
 sudo mount -a
 
-sudo chown -R ubuntu:ubuntu "${HOME}/workspace"
+sudo chown -R ${USER}:${USER} "${HOME}/workspace"
 
 mkdir -p "${HOME}/workspace/tmp"
 
