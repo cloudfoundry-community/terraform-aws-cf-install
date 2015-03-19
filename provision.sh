@@ -42,7 +42,7 @@ case "${release}" in
       libsqlite3-dev sqlite3 autoconf libgdbm-dev libncurses5-dev automake \
       libtool bison pkg-config libffi-dev
     ;;
-  (*Centos*|*RedHat*)
+  (*Centos*|*RedHat*|*Amazon*)
     sudo yum update -y
     sudo yum install -y epel-release
     sudo yum install -y git unzip xz tree rsync openssl openssl-devel \
