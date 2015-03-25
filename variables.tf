@@ -5,6 +5,9 @@ variable "aws_key_name" {}
 variable "aws_region" {
   default = "us-west-2"
 }
+variable "install_docker_services" {
+  default = "false"
+}
 variable "cf1_az" {
   default = "us-west-2a"
 }

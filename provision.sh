@@ -23,6 +23,8 @@ CF_ADMIN_PASS=${16}
 CF_DOMAIN=${17}
 CF_BOSHWORKSPACE_VERSION=${18}
 CF_SIZE=${19}
+DOCKER_SUBNET=${20}
+INSTALL_DOCKER=${21}
 
 # Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
 cd $HOME
