@@ -26,7 +26,7 @@ variable "cf_domain" {
 }
 
 variable "cf_boshworkspace_version" {
-  default = "v1.1.0"
+  default = "v1.1.2"
 }
 
 variable "cf_size" {
