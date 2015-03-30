@@ -73,6 +73,7 @@ source ~/.rvm/environments/default
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
 gem install git -v 1.2.7  #1.2.9.1 is not backwards compatible
+gem install bosh_cli -v 1.2891.0
 gem install bosh_cli bosh_cli_plugin_micro bosh_cli_plugin_aws bosh-bootstrap \
   bosh-workspace --no-ri --no-rdoc --quiet
 
@@ -140,7 +141,7 @@ mkdir -p ssh
 DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 
 # If CF_DOMAIN is set to XIP, then use XIP.IO. Otherwise, use the variable
-if [ $CF_DOMAIN == "XIP" ]; then
+if [[ $CF_DOMAIN == "XIP" ]]; then
   CF_DOMAIN="${CF_IP}.xip.io"
 fi
 
@@ -160,29 +161,31 @@ rm spiff_linux_amd64.zip
   -e "s/LB_SUBNET1/${LB_SUBNET1}/g" \
   -e "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" \
   -e "s/CF_DOMAIN/${CF_DOMAIN}/g" \
+  -e "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" \
   -e "s/IPMASK/${IPMASK}/g" \
   -e "s/CF_SG/${CF_SG}/g" \
   -e "s/LB_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" \
   deployments/cf-aws-${CF_SIZE}.yml
 
+
 # Upload the bosh release, set the deployment, and execute
+bundle install
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
 bosh deployment cf-aws-${CF_SIZE}
-bosh prepare deployment  #Seems to always fail on the first run...
-bosh prepare deployment
+bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
 git commit -am 'commit of the local deployment configs'
 
 # Keep trying until there is a successful BOSH deploy.
-bosh -n deploy
-bosh -n deploy
-bosh -n deploy
-
+for i in {0..2}
+do bosh -n deploy
+done
 
 echo "Install Traveling CF"
 curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-cf-admin/master/scripts/installer | bash
+echo 'export PATH=$PATH:$HOME/bin/traveling-cf-admin' >> ~/.bashrc
 
 # Now deploy docker services if requested
 if [[ $INSTALL_DOCKER == "true" ]]; then
@@ -196,12 +199,14 @@ if [[ $INSTALL_DOCKER == "true" ]]; then
   /bin/sed -i "s/SUBNET_ID/${DOCKER_SUBNET}/g" "${dockerDeploymentManifest}"
 
   cd ~/workspace/deployments/docker-services-boshworkspace
+  bundle install
   bosh deployment docker-aws-vpc
   bosh prepare deployment
 
-  bosh -n deploy
-  bosh -n deploy
-  bosh -n deploy
+  # Keep trying until there is a successful BOSH deploy.
+  for i in {0..2}
+  do bosh -n deploy
+  done
 
 fi
 
