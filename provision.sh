@@ -3,6 +3,8 @@
 # fail immediately on error
 set -e
 
+echo "$0 $*" > ~/provision.log
+
 # Variables passed in from terraform, see aws-vpc.tf, the "remote-exec" provisioner
 AWS_KEY_ID=${1}
 AWS_ACCESS_KEY=${2}
@@ -26,22 +28,56 @@ CF_SIZE=${19}
 DOCKER_SUBNET=${20}
 INSTALL_DOCKER=${21}
 
-# Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
-cd $HOME
+boshDirectorHost="${IPMASK}.1.4"
+cfReleaseVersion="205"
+cfStemcell="light-bosh-stemcell-2778-aws-xen-ubuntu-trusty-go_agent.tgz"
 
-sudo apt-get update
-sudo apt-get install -y git vim-nox unzip tree
+# Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
+
+release=$(cat /etc/*release | tr -d '\n')
+case "${release}" in
+  (*Ubuntu*|*Debian*)
+    sudo apt-get update -yq
+    sudo apt-get install -yq aptitude
+    sudo aptitude -yq install build-essential vim-nox git unzip tree \
+      libxslt-dev libxslt1.1 libxslt1-dev libxml2 libxml2-dev \
+      libpq-dev libmysqlclient-dev libsqlite3-dev \
+      g++ gcc make libc6-dev libreadline6-dev zlib1g-dev libssl-dev libyaml-dev \
+      libsqlite3-dev sqlite3 autoconf libgdbm-dev libncurses5-dev automake \
+      libtool bison pkg-config libffi-dev
+    ;;
+  (*Centos*|*RedHat*|*Amazon*)
+    sudo yum update -y
+    sudo yum install -y epel-release
+    sudo yum install -y git unzip xz tree rsync openssl openssl-devel \
+    zlib zlib-devel libevent libevent-devel readline readline-devel cmake ntp \
+    htop wget tmux gcc g++ autoconf pcre pcre-devel vim-enhanced gcc mysql-devel \
+    postgresql-devel postgresql-libs sqlite-devel libxslt-devel libxml2-devel \
+    yajl-ruby
+    ;;
+esac
+
+cd $HOME
 
 # Generate the key that will be used to ssh between the bastion and the
 # microbosh machine
 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
-# Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
 
-set +e # ignore the errors from the bad HTML errors from downloading
-curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-bosh/master/scripts/installer | sudo bash
-set -e
-export PATH=$PATH:/usr/bin/traveling-bosh
+# Install RVM
+gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+curl -sSL https://get.rvm.io | bash -s stable
+~/.rvm/bin/rvm  --static install ruby-2.1.5
+~/.rvm/bin/rvm alias create default 2.1.5
+source ~/.rvm/environments/default
+
+# Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
+gem install git -v 1.2.7  #1.2.9.1 is not backwards compatible
+gem install bosh_cli -v 1.2891.0 --no-ri --no-rdoc --quiet
+gem install bosh_cli_plugin_micro -v 1.2891.0 --no-ri --no-rdoc --quiet
+gem install bosh_cli_plugin_aws -v 1.2891.0 --no-ri --no-rdoc --quiet
+gem install bosh-bootstrap bosh-workspace --no-ri --no-rdoc --quiet
+
 
 # We use fog below, and bosh-bootstrap uses it as well
 cat <<EOF > ~/.fog
@@ -84,13 +120,13 @@ provider:
 address:
   vpc_id: ${VPC}
   subnet_id: ${BOSH_SUBNET}
-  ip: ${IPMASK}.1.4
+  ip: ${boshDirectorHost}
 EOF
 
 bosh bootstrap deploy
 
 # We've hardcoded the IP of the microbosh machine, because convenience
-bosh -n target https://${IPMASK}.1.4:25555
+bosh -n target https://${boshDirectorHost}:25555
 bosh login admin admin
 popd
 
@@ -106,40 +142,74 @@ mkdir -p ssh
 DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
 
 # If CF_DOMAIN is set to XIP, then use XIP.IO. Otherwise, use the variable
-if [ $CF_DOMAIN == "XIP" ]; then
+if [[ $CF_DOMAIN == "XIP" ]]; then
   CF_DOMAIN="${CF_IP}.xip.io"
 fi
 
+curl -sOL https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.3/spiff_linux_amd64.zip
+unzip spiff_linux_amd64.zip
+sudo mv ./spiff /usr/local/bin/spiff
+rm spiff_linux_amd64.zip
 
 # This is some hackwork to get the configs right. Could be changed in the future
-/bin/sed -i "s/CF_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/CF_SUBNET2_AZ/${CF_SUBNET2_AZ}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/LB_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/CF_ELASTIC_IP/${CF_IP}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/CF_SUBNET1/${CF_SUBNET1}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/CF_SUBNET2/${CF_SUBNET2}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/LB_SUBNET1/${LB_SUBNET1}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/CF_DOMAIN/${CF_DOMAIN}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/IPMASK/${IPMASK}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/CF_SG/${CF_SG}/g" deployments/cf-aws-tiny.yml
-/bin/sed -i "s/LB_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" deployments/cf-aws-tiny.yml
+/bin/sed -i \
+  -e "s/CF_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" \
+  -e "s/CF_SUBNET2_AZ/${CF_SUBNET2_AZ}/g" \
+  -e "s/LB_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" \
+  -e "s/CF_ELASTIC_IP/${CF_IP}/g" \
+  -e "s/CF_SUBNET1/${CF_SUBNET1}/g" \
+  -e "s/CF_SUBNET2/${CF_SUBNET2}/g" \
+  -e "s/LB_SUBNET1/${LB_SUBNET1}/g" \
+  -e "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" \
+  -e "s/CF_DOMAIN/${CF_DOMAIN}/g" \
+  -e "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" \
+  -e "s/IPMASK/${IPMASK}/g" \
+  -e "s/CF_SG/${CF_SG}/g" \
+  -e "s/LB_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" \
+  deployments/cf-aws-${CF_SIZE}.yml
+
 
 # Upload the bosh release, set the deployment, and execute
-bosh upload release https://community-shared-boshreleases.s3.amazonaws.com/boshrelease-cf-196.tgz
+bundle install
+bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
 bosh deployment cf-aws-${CF_SIZE}
-bosh prepare deployment
+bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
 git commit -am 'commit of the local deployment configs'
 
-# Speaking of hack-work, bosh deploy often fails the first or even second time, due to packet bats
-# We run it three times (it's idempotent) so that you don't have to
-bosh -n deploy
-bosh -n deploy
-bosh -n deploy
+# Keep trying until there is a successful BOSH deploy.
+for i in {0..2}
+do bosh -n deploy
+done
+
+echo "Install Traveling CF"
+curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-cf-admin/master/scripts/installer | bash
+echo 'export PATH=$PATH:$HOME/bin/traveling-cf-admin' >> ~/.bashrc
+
+# Now deploy docker services if requested
+if [[ $INSTALL_DOCKER == "true" ]]; then
+
+  cd ~/workspace/deployments
+  git clone https://github.com/cloudfoundry-community/docker-services-boshworkspace.git
+
+  echo "Update the docker-aws-vpc.yml with cf-boshworkspace parameters"
+  /home/ubuntu/workspace/deployments/docker-services-boshworkspace/shell/populate-docker-aws-vpc
+  dockerDeploymentManifest="/home/ubuntu/workspace/deployments/docker-services-boshworkspace/deployments/docker-aws-vpc.yml"
+  /bin/sed -i "s/SUBNET_ID/${DOCKER_SUBNET}/g" "${dockerDeploymentManifest}"
+
+  cd ~/workspace/deployments/docker-services-boshworkspace
+  bundle install
+  bosh deployment docker-aws-vpc
+  bosh prepare deployment
+
+  # Keep trying until there is a successful BOSH deploy.
+  for i in {0..2}
+  do bosh -n deploy
+  done
+
+fi
 
 # FIXME: enable this again when smoke_tests work
 # bosh run errand smoke_tests
