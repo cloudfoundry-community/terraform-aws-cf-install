@@ -73,9 +73,10 @@ source ~/.rvm/environments/default
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
 gem install git -v 1.2.7  #1.2.9.1 is not backwards compatible
-gem install bosh_cli -v 1.2891.0
-gem install bosh_cli bosh_cli_plugin_micro bosh_cli_plugin_aws bosh-bootstrap \
-  bosh-workspace --no-ri --no-rdoc --quiet
+gem install bosh_cli -v 1.2891.0 --no-ri --no-rdoc --quiet
+gem install bosh_cli_plugin_micro -v 1.2891.0 --no-ri --no-rdoc --quiet
+gem install bosh_cli_plugin_aws -v 1.2891.0 --no-ri --no-rdoc --quiet
+gem install bosh-bootstrap bosh-workspace --no-ri --no-rdoc --quiet
 
 
 # We use fog below, and bosh-bootstrap uses it as well
