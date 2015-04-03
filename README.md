@@ -34,20 +34,14 @@ Deploy Cloud Foundry
 
 The one step that isn't automated is the creation of SSH keys. We are waiting for that feature to be [added to terraform](https://github.com/hashicorp/terraform/issues/28). An AWS SSH Key need to be created in desired region prior to running the following commands. Note the name of the key and the path to the pem/private key file for use further down.
 
-You **must** being using at least terraform version 0.3.6.
+You **must** being using at least terraform version 0.4.0.
 
 ```
 $ terraform -v
-Terraform v0.3.6
+Terraform v0.4.0
 ```
 
-You can install terraform 0.3.6+ via the https://bosh-cli.cfapps.io installer for BOSH CLI!
-
-```
-curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-bosh/master/scripts/installer | bash
-```
-
-Then restart your shell to pick up the new `$PATH`.
+You can install terraform 0.4.0+ via [https://www.terraform.io/downloads.html]
 
 Your chosen AWS Region must have sufficient quota to spin up **all** of the machines. While building various bits, the install process can use up to 13 VMs, settling down to use 7 machines long-term (more, if you want more runners).
 
@@ -170,3 +164,16 @@ module "cf-staging" {
   cf_install = "staging.mycloudfoundry.domain"
 }
 ```
+
+Installing Sample Docker Services
+---------------------------------
+
+If you would like sample services like PostgreSQL, MySQL, Rabbit MQ, Mongo, etcd, consul (and others) there is a github repo that you can clone on the Bastion server or there is a flag you can set in your `terraform.tfvars` for this project which will install these services after Cloud Foundry is installed.
+
+To enable these services to be installed automatically, add the following line to `terraform.tfvars`:
+
+```
+install_docker_services = "true"
+```
+
+There is already a subnet defined in `aws-cf-install.tf` where this server will be created.
