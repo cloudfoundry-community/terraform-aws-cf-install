@@ -32,6 +32,19 @@ boshDirectorHost="${IPMASK}.1.4"
 cfReleaseVersion="205"
 cfStemcell="light-bosh-stemcell-2778-aws-xen-ubuntu-trusty-go_agent.tgz"
 
+cd $HOME
+
+# Generate the key that will be used to ssh between the bastion and the
+# microbosh machine
+ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+
+# Install RVM
+gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+curl -sSL https://get.rvm.io | bash -s stable
+~/.rvm/bin/rvm  --static install ruby-2.1.5
+~/.rvm/bin/rvm alias create default 2.1.5
+source ~/.rvm/environments/default
+
 # Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
 
 release=$(cat /etc/*release | tr -d '\n')
@@ -56,20 +69,6 @@ case "${release}" in
     yajl-ruby
     ;;
 esac
-
-cd $HOME
-
-# Generate the key that will be used to ssh between the bastion and the
-# microbosh machine
-ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
-
-
-# Install RVM
-gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
-curl -sSL https://get.rvm.io | bash -s stable
-~/.rvm/bin/rvm  --static install ruby-2.1.5
-~/.rvm/bin/rvm alias create default 2.1.5
-source ~/.rvm/environments/default
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
 gem install git -v 1.2.7  #1.2.9.1 is not backwards compatible
