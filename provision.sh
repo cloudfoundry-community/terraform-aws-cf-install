@@ -138,7 +138,7 @@ mkdir -p ssh
 
 # Pull out the UUID of the director - bosh_cli needs it in the deployment to
 # know it's hitting the right microbosh instance
-DIRECTOR_UUID=$(bosh status | grep UUID | awk '{print $2}')
+DIRECTOR_UUID=$(bosh status --uuid)
 
 # If CF_DOMAIN is set to XIP, then use XIP.IO. Otherwise, use the variable
 if [[ $CF_DOMAIN == "XIP" ]]; then
