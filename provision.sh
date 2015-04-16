@@ -39,11 +39,6 @@ cd $HOME
 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
 # Install RVM
-gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
-curl -sSL https://get.rvm.io | bash -s stable
-~/.rvm/bin/rvm  --static install ruby-2.1.5
-~/.rvm/bin/rvm alias create default 2.1.5
-source ~/.rvm/environments/default
 
 # Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
 
@@ -70,12 +65,23 @@ case "${release}" in
     ;;
 esac
 
+git clone git://github.com/rvm/rvm
+cd rvm
+./install
+cd $HOME
+
+~/.rvm/bin/rvm install ruby-2.1
+~/.rvm/bin/rvm alias create default 2.1
+source ~/.rvm/environments/default
+source ~/.rvm/scripts/rvm
+
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
+gem install fog-aws -v 0.1.1 --no-ri --no-rdoc --quiet
 gem install git -v 1.2.7  #1.2.9.1 is not backwards compatible
 gem install bosh_cli -v 1.2891.0 --no-ri --no-rdoc --quiet
 gem install bosh_cli_plugin_micro -v 1.2891.0 --no-ri --no-rdoc --quiet
 gem install bosh_cli_plugin_aws -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bosh-bootstrap bosh-workspace --no-ri --no-rdoc --quiet
+gem install bundler bosh-bootstrap bosh-workspace --no-ri --no-rdoc --quiet
 
 
 # We use fog below, and bosh-bootstrap uses it as well
