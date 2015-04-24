@@ -58,8 +58,8 @@ module "cf" {
   aws_internet_gateway_id = "${module.vpc.aws_internet_gateway_id}"
   aws_route_table_public_id = "${module.vpc.aws_route_table_public_id}"
   aws_route_table_private_id = "${module.vpc.aws_route_table_private_id}"
-  aws_subnet_cfruntime-2a_availability_zone = "${var.cf1_az}"
-  aws_subnet_cfruntime-2b_availability_zone = "${var.cf2_az}"
+  aws_subnet_cfruntime-2a_availability_zone = "${lookup(var.cf1_az, var.aws_region)}"
+  aws_subnet_cfruntime-2b_availability_zone = "${lookup(var.cf2_az, var.aws_region)}"
 }
 
 output "cf_api" {
@@ -72,7 +72,7 @@ output "aws_subnet_docker_id" {
 
 resource "aws_instance" "bastion" {
   ami = "${lookup(var.aws_ubuntu_ami, var.aws_region)}"
-  instance_type = "m1.medium"
+  instance_type = "m3.medium"
   key_name = "${var.aws_key_name}"
   associate_public_ip_address = true
   security_groups = ["${module.vpc.aws_security_group_bastion_id}"]
