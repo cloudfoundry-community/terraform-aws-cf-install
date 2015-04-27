@@ -212,12 +212,16 @@ fi
 
 
 # Upload the bosh release, set the deployment, and execute
-bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
-exit 0
-bosh deployment cf-aws-${CF_SIZE}
-bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
+deployedVersion=$(bosh releases | grep " ${cfReleaseVersion} " | awk '{print $4}')
+if [[ "$deployedVersion" == "${cfReleaseVersion}" ]]; then
+  bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
+  bosh deployment cf-aws-${CF_SIZE}
+  bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
+fi
 
-if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
+exit 0
+
+if [[ ! "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
   pushd .releases/cf
   ./update
   popd
