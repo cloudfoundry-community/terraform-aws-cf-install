@@ -5,6 +5,11 @@ set -e
 
 echo "$0 $*" > ~/provision.log
 
+fail() {
+  echo "$*" >&2
+  exit 1
+}
+
 # Variables passed in from terraform, see aws-vpc.tf, the "remote-exec" provisioner
 AWS_KEY_ID=${1}
 AWS_ACCESS_KEY=${2}
@@ -32,10 +37,15 @@ boshDirectorHost="${IPMASK}.1.4"
 cfReleaseVersion="207"
 
 cd $HOME
+(("$?" == "0")) ||
+  fail "Could not find HOME folder, terminating install."
+
 
 # Generate the key that will be used to ssh between the bastion and the
 # microbosh machine
-ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+if [[ ! -f ~/.ssh/id_rsa ]]; then
+  ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+fi
 
 # Install RVM
 
@@ -64,13 +74,25 @@ case "${release}" in
     ;;
 esac
 
-git clone git://github.com/rvm/rvm
-cd rvm
-./install
+if [[ ! -d "$HOME/rvm" ]]; then
+  git clone git://github.com/rvm/rvm
+fi
+
+if [[ ! -d "$HOME/.rvm" ]]; then
+  cd rvm
+  ./install
+fi
+
 cd $HOME
 
-~/.rvm/bin/rvm install ruby-2.1
-~/.rvm/bin/rvm alias create default 2.1
+if [[ ! "$(ls -A $HOME/.rvm/environments)" ]]; then
+  ~/.rvm/bin/rvm install ruby-2.1
+fi
+
+if [[ ! -d "$HOME/.rvm/environments/default" ]]; then
+  ~/.rvm/bin/rvm alias create default 2.1
+fi
+
 source ~/.rvm/environments/default
 source ~/.rvm/scripts/rvm
 
@@ -88,18 +110,25 @@ cat <<EOF > ~/.fog
 EOF
 
 # This volume is created using terraform in aws-bosh.tf
-sudo /sbin/mkfs.ext4 /dev/xvdc
-sudo /sbin/e2label /dev/xvdc workspace
-echo 'LABEL=workspace /home/ubuntu/workspace ext4 defaults,discard 0 0' | sudo tee -a /etc/fstab
-mkdir -p /home/ubuntu/workspace
-sudo mount -a
-sudo chown -R ubuntu:ubuntu /home/ubuntu/workspace
+if [[ ! -d "$HOME/workspace" ]]; then
+  sudo /sbin/mkfs.ext4 /dev/xvdc
+  sudo /sbin/e2label /dev/xvdc workspace
+  echo 'LABEL=workspace /home/ubuntu/workspace ext4 defaults,discard 0 0' | sudo tee -a /etc/fstab
+  mkdir -p /home/ubuntu/workspace
+  sudo mount -a
+  sudo chown -R ubuntu:ubuntu /home/ubuntu/workspace
+fi
 
 # As long as we have a large volume to work with, we'll move /tmp over there
 # You can always use a bigger /tmp
-sudo rsync -avq /tmp/ /home/ubuntu/workspace/tmp/
-sudo rm -fR /tmp
-sudo ln -s /home/ubuntu/workspace/tmp /tmp
+if [[ ! -d "$HOME/workspace/tmp" ]]; then
+  sudo rsync -avq /tmp/ /home/ubuntu/workspace/tmp/
+fi
+
+if ! [[ -L "/tmp" && -d "/tmp" ]]; then
+  sudo rm -fR /tmp
+  sudo ln -s /home/ubuntu/workspace/tmp /tmp
+fi
 
 # bosh-bootstrap handles provisioning the microbosh machine and installing bosh
 # on it. This is very nice of bosh-bootstrap. Everyone make sure to thank bosh-bootstrap
@@ -203,7 +232,7 @@ if [[ $INSTALL_DOCKER == "true" ]]; then
   git clone https://github.com/cloudfoundry-community/docker-services-boshworkspace.git
 
   echo "Update the docker-aws-vpc.yml with cf-boshworkspace parameters"
-  /home/ubuntu/workspace/deployments/docker-services-boshworkspace/shell/populate-docker-aws-vpc ${CF_SIZE}
+  /home/ubuntu/workspace/deployments/docker-services-boshworkspace/shell/populate-docker-aws-vpc
   dockerDeploymentManifest="/home/ubuntu/workspace/deployments/docker-services-boshworkspace/deployments/docker-aws-vpc.yml"
   /bin/sed -i "s/SUBNET_ID/${DOCKER_SUBNET}/g" "${dockerDeploymentManifest}"
 
