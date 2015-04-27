@@ -57,7 +57,7 @@ module "cf" {
   aws_vpc_id = "${module.vpc.aws_vpc_id}"
   aws_internet_gateway_id = "${module.vpc.aws_internet_gateway_id}"
   aws_route_table_public_id = "${module.vpc.aws_route_table_public_id}"
-  aws_route_table_private_id = "${module.vpc.aws_route_table_private_id}"
+	aws_route_table_private_id = "${module.vpc.aws_route_table_private_id}"
 	aws_subnet_cfruntime-2a_availability_zone = "${lookup(var.cf1_az, var.aws_region)}"
 	aws_subnet_cfruntime-2b_availability_zone = "${lookup(var.cf2_az, var.aws_region)}"
 }
@@ -85,12 +85,6 @@ resource "aws_instance" "bastion" {
   tags {
    Name = "bastion"
   }
-
-#  connection {
-#    user = "ubuntu"
-#    key_file = "${var.aws_key_path}"
-#  }
-#
 
 }
 
