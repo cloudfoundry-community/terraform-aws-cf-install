@@ -200,7 +200,7 @@ if [[ $INSTALL_DOCKER == "true" ]]; then
   git clone https://github.com/cloudfoundry-community/docker-services-boshworkspace.git
 
   echo "Update the docker-aws-vpc.yml with cf-boshworkspace parameters"
-  /home/ubuntu/workspace/deployments/docker-services-boshworkspace/shell/populate-docker-aws-vpc
+  /home/ubuntu/workspace/deployments/docker-services-boshworkspace/shell/populate-docker-aws-vpc ${CF_SIZE}
   dockerDeploymentManifest="/home/ubuntu/workspace/deployments/docker-services-boshworkspace/deployments/docker-aws-vpc.yml"
   /bin/sed -i "s/SUBNET_ID/${DOCKER_SUBNET}/g" "${dockerDeploymentManifest}"
 
