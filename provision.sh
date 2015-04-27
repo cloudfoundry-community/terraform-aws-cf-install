@@ -34,8 +34,7 @@ DOCKER_SUBNET=${20}
 INSTALL_DOCKER=${21}
 
 boshDirectorHost="${IPMASK}.1.4"
-cfReleaseVersion="205"
-cfStemcell="light-bosh-stemcell-2778-aws-xen-ubuntu-trusty-go_agent.tgz"
+cfReleaseVersion="207"
 
 cd $HOME
 (("$?" == "0")) ||
@@ -62,7 +61,7 @@ case "${release}" in
       libpq-dev libmysqlclient-dev libsqlite3-dev \
       g++ gcc make libc6-dev libreadline6-dev zlib1g-dev libssl-dev libyaml-dev \
       libsqlite3-dev sqlite3 autoconf libgdbm-dev libncurses5-dev automake \
-      libtool bison pkg-config libffi-dev
+      libtool bison pkg-config libffi-dev cmake
     ;;
   (*Centos*|*RedHat*|*Amazon*)
     sudo yum update -y
@@ -71,7 +70,7 @@ case "${release}" in
     zlib zlib-devel libevent libevent-devel readline readline-devel cmake ntp \
     htop wget tmux gcc g++ autoconf pcre pcre-devel vim-enhanced gcc mysql-devel \
     postgresql-devel postgresql-libs sqlite-devel libxslt-devel libxml2-devel \
-    yajl-ruby
+    yajl-ruby cmake
     ;;
 esac
 
@@ -99,11 +98,7 @@ source ~/.rvm/scripts/rvm
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
 gem install fog-aws -v 0.1.1 --no-ri --no-rdoc --quiet
-gem install git -v 1.2.7  #1.2.9.1 is not backwards compatible
-gem install bosh_cli -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bosh_cli_plugin_micro -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bosh_cli_plugin_aws -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bundler bosh-bootstrap bosh-workspace --no-ri --no-rdoc --quiet
+gem install bundler bosh-bootstrap --no-ri --no-rdoc --quiet
 
 
 # We use fog below, and bosh-bootstrap uses it as well
@@ -157,19 +152,30 @@ address:
   ip: ${boshDirectorHost}
 EOF
 
-bosh bootstrap deploy
+if [[ ! -d "$HOME/workspace/deployments/microbosh/deployments" ]]; then
+  bosh bootstrap deploy
+fi
 
 # We've hardcoded the IP of the microbosh machine, because convenience
 bosh -n target https://${boshDirectorHost}:25555
 bosh login admin admin
+
+if [[ ! "$?" == 0 ]]; then
+  #wipe the ~/workspace/deployments/microbosh folder contents and try again
+  echo "Retry deploying the micro bosh..."
+fi
 popd
 
 # There is a specific branch of cf-boshworkspace that we use for terraform. This
 # may change in the future if we come up with a better way to handle maintaining
 # configs in a git repo
-git clone --branch  ${CF_BOSHWORKSPACE_VERSION} http://github.com/cloudfoundry-community/cf-boshworkspace
+if [[ ! -d "$HOME/workspace/deployments/cf-boshworkspace" ]]; then
+  git clone --branch  ${CF_BOSHWORKSPACE_VERSION} http://github.com/cloudfoundry-community/cf-boshworkspace
+fi
 pushd cf-boshworkspace
 mkdir -p ssh
+gem install bundler
+bundle install
 
 # Pull out the UUID of the director - bosh_cli needs it in the deployment to
 # know it's hitting the right microbosh instance
@@ -180,10 +186,12 @@ if [[ $CF_DOMAIN == "XIP" ]]; then
   CF_DOMAIN="${CF_IP}.xip.io"
 fi
 
-curl -sOL https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.3/spiff_linux_amd64.zip
-unzip spiff_linux_amd64.zip
-sudo mv ./spiff /usr/local/bin/spiff
-rm spiff_linux_amd64.zip
+if [[ ! -f "/usr/local/bin/spiff" ]]; then
+  curl -sOL https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.3/spiff_linux_amd64.zip
+  unzip spiff_linux_amd64.zip
+  sudo mv ./spiff /usr/local/bin/spiff
+  rm spiff_linux_amd64.zip
+fi
 
 # This is some hackwork to get the configs right. Could be changed in the future
 /bin/sed -i \
@@ -204,10 +212,16 @@ rm spiff_linux_amd64.zip
 
 
 # Upload the bosh release, set the deployment, and execute
-bundle install
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
+exit 0
 bosh deployment cf-aws-${CF_SIZE}
 bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
+
+if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
+  pushd .releases/cf
+  ./update
+  popd
+fi
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
