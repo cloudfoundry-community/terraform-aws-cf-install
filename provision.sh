@@ -176,6 +176,13 @@ bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfR
 bosh deployment cf-aws-${CF_SIZE}
 bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 
+# Work around until bosh-workspace can handle submodules
+if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
+  pushd .releases/cf
+  ./update
+  popd
+fi
+
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
 git commit -am 'commit of the local deployment configs'
