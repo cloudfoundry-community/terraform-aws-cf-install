@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# USAGE: ./bastion-ssh
+
+set -x
+
+#You need the sed nonsense if the path to your key has a ~ in it
+keyPath=$(terraform output aws_key_path | sed -e "s#^~#$HOME#")
+scriptPath="provision/provision.sh"
+targetPath="/home/ubuntu/provision.sh"
+bastionIP=$(terraform output bastion_ip)
+
+ssh -i ${keyPath} ubuntu@$bastionIP

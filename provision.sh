@@ -70,7 +70,7 @@ case "${release}" in
     zlib zlib-devel libevent libevent-devel readline readline-devel cmake ntp \
     htop wget tmux gcc g++ autoconf pcre pcre-devel vim-enhanced gcc mysql-devel \
     postgresql-devel postgresql-libs sqlite-devel libxslt-devel libxml2-devel \
-    yajl-ruby
+    yajl-ruby cmake
     ;;
 esac
 
@@ -152,17 +152,26 @@ address:
   ip: ${boshDirectorHost}
 EOF
 
-bosh bootstrap deploy
+if [[ ! -d "$HOME/workspace/deployments/microbosh/deployments" ]]; then
+  bosh bootstrap deploy
+fi
 
 # We've hardcoded the IP of the microbosh machine, because convenience
 bosh -n target https://${boshDirectorHost}:25555
 bosh login admin admin
+
+if [[ ! "$?" == 0 ]]; then
+  #wipe the ~/workspace/deployments/microbosh folder contents and try again
+  echo "Retry deploying the micro bosh..."
+fi
 popd
 
 # There is a specific branch of cf-boshworkspace that we use for terraform. This
 # may change in the future if we come up with a better way to handle maintaining
 # configs in a git repo
-git clone --branch  ${CF_BOSHWORKSPACE_VERSION} http://github.com/cloudfoundry-community/cf-boshworkspace
+if [[ ! -d "$HOME/workspace/deployments/cf-boshworkspace" ]]; then
+  git clone --branch  ${CF_BOSHWORKSPACE_VERSION} http://github.com/cloudfoundry-community/cf-boshworkspace
+fi
 pushd cf-boshworkspace
 mkdir -p ssh
 gem install bundler
@@ -177,10 +186,12 @@ if [[ $CF_DOMAIN == "XIP" ]]; then
   CF_DOMAIN="${CF_IP}.xip.io"
 fi
 
-curl -sOL https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.3/spiff_linux_amd64.zip
-unzip spiff_linux_amd64.zip
-sudo mv ./spiff /usr/local/bin/spiff
-rm spiff_linux_amd64.zip
+if [[ ! -f "/usr/local/bin/spiff" ]]; then
+  curl -sOL https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.3/spiff_linux_amd64.zip
+  unzip spiff_linux_amd64.zip
+  sudo mv ./spiff /usr/local/bin/spiff
+  rm spiff_linux_amd64.zip
+fi
 
 # This is some hackwork to get the configs right. Could be changed in the future
 /bin/sed -i \
@@ -202,6 +213,7 @@ rm spiff_linux_amd64.zip
 
 # Upload the bosh release, set the deployment, and execute
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
+exit 0
 bosh deployment cf-aws-${CF_SIZE}
 bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 
