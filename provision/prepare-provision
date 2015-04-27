@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# USAGE: provision/configure-provision
+
+fail() {
+  echo "$*" >&2
+  exit 1
+}
+
+cp -R provision.sh provision/provision.sh
+(( "$?" == "0" )) ||
+  fail "Could not copy the original provision.sh file to the provision folder."
+
+# TERRAFORM_DIR=${TERRAFORM_DIR:-terraform-aws-cf-install}
+#
+# if [[ ! -f $TERRAFORM_DIR/terraform.tfstate ]]; then
+#   echo "File $TERRAFORM_DIR/terraform.tfstate is missing; and is required"
+#   exit 1
+# fi
+#
+# pushd $TERRAFORM_DIR
+#   ssh ubuntu@$(terraform output bastion_ip) -i $(terraform output aws_key_path)
+# popd
+
+assure_string_in_file() {
+  assurefilename=$1
+  assuresearchString=$2
+  assurereplaceString=$3
+
+  re="s#^.*$assuresearchString.*#$assurereplaceString#"
+
+  #ToDo: Detect OSX v other linux for ''
+  sed -i '' "${re}" "$assurefilename"
+  (( "$?" == "0" )) ||
+    fail "Could not execute execute sed command replace $assuresearchString with $assurereplaceString in file $assurefilename, terminating install."
+}
+
+filename_provision="provision/provision.sh"
+assure_string_in_file $filename_provision 'AWS_KEY_ID=${1}' "AWS_KEY_ID=\"$(terraform output aws_access_key)\""
+assure_string_in_file $filename_provision 'AWS_ACCESS_KEY=${2}' "AWS_ACCESS_KEY=\"$(terraform output aws_secret_key)\""
+assure_string_in_file $filename_provision 'REGION=${3}' "REGION=\"$(terraform output aws_region)\""
+assure_string_in_file $filename_provision 'VPC=${4}' "VPC=\"$(terraform output aws_vpc_id)\""
+assure_string_in_file $filename_provision 'BOSH_SUBNET=${5}' "BOSH_SUBNET=\"$(terraform output bosh_subnet)\""
+assure_string_in_file $filename_provision 'IPMASK=${6}' "IPMASK=\"$(terraform output ipmask)\""
+assure_string_in_file $filename_provision 'CF_IP=${7}' "CF_IP=\"$(terraform output cf_api_id)\""
+assure_string_in_file $filename_provision 'CF_SUBNET1=${8}' "CF_SUBNET1=\"$(terraform output cf_subnet1)\""
+assure_string_in_file $filename_provision 'CF_SUBNET1_AZ=${9}' "CF_SUBNET1_AZ=\"$(terraform output cf_subnet1_az)\""
+assure_string_in_file $filename_provision 'CF_SUBNET2=${10}' "CF_SUBNET2=\"$(terraform output cf_subnet2)\""
+assure_string_in_file $filename_provision 'CF_SUBNET2_AZ=${11}' "CF_SUBNET2_AZ=\"$(terraform output cf_subnet2_az)\""
+assure_string_in_file $filename_provision 'BASTION_AZ=${12}' "BASTION_AZ=\"$(terraform output bastion_az)\""
+assure_string_in_file $filename_provision 'BASTION_ID=${13}' "BASTION_ID=\"$(terraform output bastion_id)\""
+assure_string_in_file $filename_provision 'LB_SUBNET1=${14}' "LB_SUBNET1=\"$(terraform output lb_subnet1)\""
+assure_string_in_file $filename_provision 'CF_SG=${15}' "CF_SG=\"$(terraform output cf_sg)\""
+assure_string_in_file $filename_provision 'CF_ADMIN_PASS=${16}' "CF_ADMIN_PASS=\"$(terraform output cf_admin_pass)\""
+assure_string_in_file $filename_provision 'CF_DOMAIN=${17}' "CF_DOMAIN=\"$(terraform output cf_domain)\""
+assure_string_in_file $filename_provision 'CF_BOSHWORKSPACE_VERSION=${18}' "CF_BOSHWORKSPACE_VERSION=\"$(terraform output cf_boshworkspace_version)\""
+assure_string_in_file $filename_provision 'CF_SIZE=${19}' "CF_SIZE=\"$(terraform output cf_size)\""
+assure_string_in_file $filename_provision 'DOCKER_SUBNET=${20}' "DOCKER_SUBNET=\"$(terraform output docker_subnet)\""
+assure_string_in_file $filename_provision 'INSTALL_DOCKER=${21}' "INSTALL_DOCKER=\"$(terraform output install_docker_services)\""

@@ -23,7 +23,7 @@ Note: You didn't specify an "-out" parameter to save this plan, so when
     ebs_block_device.1420233019.volume_size:           "" => "40"
     ebs_block_device.1420233019.volume_type:           "" => "<computed>"
     ephemeral_block_device.#:                          "" => "<computed>"
-    instance_type:                                     "" => "m3.medium"
+    instance_type:                                     "" => "m1.medium"
     key_name:                                          "" => "bosh"
     private_dns:                                       "" => "<computed>"
     private_ip:                                        "" => "<computed>"
