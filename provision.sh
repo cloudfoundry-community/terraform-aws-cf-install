@@ -29,8 +29,7 @@ DOCKER_SUBNET=${20}
 INSTALL_DOCKER=${21}
 
 boshDirectorHost="${IPMASK}.1.4"
-cfReleaseVersion="205"
-cfStemcell="light-bosh-stemcell-2778-aws-xen-ubuntu-trusty-go_agent.tgz"
+cfReleaseVersion="207"
 
 cd $HOME
 
@@ -52,7 +51,7 @@ case "${release}" in
       libpq-dev libmysqlclient-dev libsqlite3-dev \
       g++ gcc make libc6-dev libreadline6-dev zlib1g-dev libssl-dev libyaml-dev \
       libsqlite3-dev sqlite3 autoconf libgdbm-dev libncurses5-dev automake \
-      libtool bison pkg-config libffi-dev
+      libtool bison pkg-config libffi-dev cmake
     ;;
   (*Centos*|*RedHat*|*Amazon*)
     sudo yum update -y
@@ -77,11 +76,7 @@ source ~/.rvm/scripts/rvm
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
 gem install fog-aws -v 0.1.1 --no-ri --no-rdoc --quiet
-gem install git -v 1.2.7  #1.2.9.1 is not backwards compatible
-gem install bosh_cli -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bosh_cli_plugin_micro -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bosh_cli_plugin_aws -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bundler bosh-bootstrap bosh-workspace --no-ri --no-rdoc --quiet
+gem install bundler bosh-bootstrap --no-ri --no-rdoc --quiet
 
 
 # We use fog below, and bosh-bootstrap uses it as well
@@ -141,6 +136,8 @@ popd
 git clone --branch  ${CF_BOSHWORKSPACE_VERSION} http://github.com/cloudfoundry-community/cf-boshworkspace
 pushd cf-boshworkspace
 mkdir -p ssh
+gem install bundler
+bundle install
 
 # Pull out the UUID of the director - bosh_cli needs it in the deployment to
 # know it's hitting the right microbosh instance
@@ -175,10 +172,16 @@ rm spiff_linux_amd64.zip
 
 
 # Upload the bosh release, set the deployment, and execute
-bundle install
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
 bosh deployment cf-aws-${CF_SIZE}
 bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
+
+# Work around until bosh-workspace can handle submodules
+if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
+  pushd .releases/cf
+  ./update
+  popd
+fi
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok

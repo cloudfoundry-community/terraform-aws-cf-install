@@ -67,7 +67,7 @@ output "cf_api" {
 }
 
 output "aws_subnet_docker_id" {
-  value = "module.cf.aws_subnet_docker_id"
+  value = "${module.cf.aws_subnet_docker_id}"
 }
 
 resource "aws_instance" "bastion" {
