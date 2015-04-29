@@ -220,7 +220,6 @@ if [[ ! "$deployedVersion" == "${cfReleaseVersion}" ]]; then
   bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 fi
 
-
 # Work around until bosh-workspace can handle submodules
 if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
   pushd .releases/cf
