@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # fail immediately on error
-set -e
+# set -e
 
-echo "$0 $*" > ~/provision.log
+# echo "$0 $*" > ~/provision.log
 
 fail() {
   echo "$*" >&2
@@ -212,16 +212,15 @@ fi
 
 
 # Upload the bosh release, set the deployment, and execute
-deployedVersion=$(bosh releases | grep " ${cfReleaseVersion} " | awk '{print $4}')
-if [[ "$deployedVersion" == "${cfReleaseVersion}" ]]; then
+deployedVersion=$(bosh releases | grep " ${cfReleaseVersion}" | awk '{print $4}')
+deployedVersion="${deployedVersion//[^[:alnum:]]/}"
+if [[ ! "$deployedVersion" == "${cfReleaseVersion}" ]]; then
   bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
   bosh deployment cf-aws-${CF_SIZE}
   bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 fi
 
-exit 0
-
-if [[ ! "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
+if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
   pushd .releases/cf
   ./update
   popd
@@ -234,11 +233,15 @@ git commit -am 'commit of the local deployment configs'
 # Keep trying until there is a successful BOSH deploy.
 for i in {0..2}
 do bosh -n deploy
+  echo "XXXXXXXXX: $?"
 done
 
 echo "Install Traveling CF"
-curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-cf-admin/master/scripts/installer | bash
-echo 'export PATH=$PATH:$HOME/bin/traveling-cf-admin' >> ~/.bashrc
+if [[ "$(cat $HOME/.bashrc | grep 'export PATH=$PATH:$HOME/bin/traveling-cf-admin')" == "" ]]; then
+  curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-cf-admin/master/scripts/installer | bash
+  echo 'export PATH=$PATH:$HOME/bin/traveling-cf-admin' >> $HOME/.bashrc
+  source $HOME/.bashrc
+fi
 
 # Now deploy docker services if requested
 if [[ $INSTALL_DOCKER == "true" ]]; then
@@ -262,6 +265,9 @@ if [[ $INSTALL_DOCKER == "true" ]]; then
   done
 
 fi
+
+echo "Provision script completed..."
+exit 0
 
 # FIXME: enable this again when smoke_tests work
 # bosh run errand smoke_tests
