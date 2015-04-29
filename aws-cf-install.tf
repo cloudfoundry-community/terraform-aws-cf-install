@@ -86,23 +86,6 @@ resource "aws_instance" "bastion" {
    Name = "bastion"
   }
 
-  connection {
-    user = "ubuntu"
-    key_file = "${var.aws_key_path}"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/provision.sh"
-    destination = "/home/ubuntu/provision.sh"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-        "chmod +x /home/ubuntu/provision.sh",
-        "/home/ubuntu/provision.sh ${var.aws_access_key} ${var.aws_secret_key} ${var.aws_region} ${module.vpc.aws_vpc_id} ${module.vpc.aws_subnet_microbosh_id} ${var.network} ${module.cf.aws_eip_cf_public_ip} ${module.cf.aws_subnet_cfruntime-2a_id} ${module.cf.aws_subnet_cfruntime-2a_availability_zone} ${module.cf.aws_subnet_cfruntime-2b_id} ${module.cf.aws_subnet_cfruntime-2b_availability_zone} ${aws_instance.bastion.availability_zone} ${aws_instance.bastion.id} ${module.cf.aws_subnet_lb_id} ${module.cf.aws_security_group_cf_name} ${var.cf_admin_pass} ${var.cf_domain} ${var.cf_boshworkspace_version} ${var.cf_size} ${module.cf.aws_subnet_docker_id} ${var.install_docker_services}",
-    ]
-  }
-
 }
 
 output "bastion_ip" {
@@ -111,4 +94,78 @@ output "bastion_ip" {
 
 output "cf_domain" {
   value = "${var.cf_domain}"
+}
+
+#########
+
+output "aws_access_key" {
+	value = "${var.aws_access_key}"
+}
+
+output "aws_secret_key" {
+	value = "${var.aws_secret_key}"
+}
+
+output "aws_region" {
+	value = "${var.aws_region}"
+}
+
+output "bosh_subnet" {
+  value = "${module.vpc.aws_subnet_microbosh_id}"
+}
+
+output "ipmask" {
+	value = "${var.network}"
+}
+
+output "cf_api_id" {
+	value = "${module.cf.aws_eip_cf_public_ip}"
+}
+
+output "cf_subnet1" {
+  value = "${module.cf.aws_subnet_cfruntime-2a_id}"
+}
+
+output "cf_subnet1_az" {
+	value = "${module.cf.aws_subnet_cfruntime-2a_availability_zone}"
+}
+
+output "cf_subnet2" {
+	value = "${module.cf.aws_subnet_cfruntime-2b_id}"
+}
+
+output "cf_subnet2_az" {
+	value = "${module.cf.aws_subnet_cfruntime-2b_availability_zone}"
+}
+
+output "bastion_az" {
+	value = "${aws_instance.bastion.availability_zone}"
+}
+
+output "bastion_id" {
+	value = "${aws_instance.bastion.id}"
+}
+
+output "lb_subnet1" {
+	value = "${module.cf.aws_subnet_lb_id}"
+}
+
+output "cf_sg" {
+	value = "${module.cf.aws_security_group_cf_name}"
+}
+
+output "cf_boshworkspace_version" {
+	value = "${var.cf_boshworkspace_version}"
+}
+
+output "cf_size" {
+	value = "${var.cf_size}"
+}
+
+output "docker_subnet" {
+	value = "${module.cf.aws_subnet_docker_id}"
+}
+
+output "install_docker_services" {
+	value = "${var.install_docker_services}"
 }
