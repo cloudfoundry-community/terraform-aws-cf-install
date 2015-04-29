@@ -47,8 +47,6 @@ if [[ ! -f ~/.ssh/id_rsa ]]; then
   ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 fi
 
-# Install RVM
-
 # Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
 
 release=$(cat /etc/*release | tr -d '\n')
@@ -73,6 +71,8 @@ case "${release}" in
     yajl-ruby cmake
     ;;
 esac
+
+# Install RVM
 
 if [[ ! -d "$HOME/rvm" ]]; then
   git clone git://github.com/rvm/rvm
