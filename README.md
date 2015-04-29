@@ -67,10 +67,21 @@ cp terraform.tfvars.example terraform.tfvars
 
 Next, edit `terraform.tfvars` using your text editor and fill out the variables with your own values (AWS credentials, AWS region, etc).
 
+Run the following to create the networking, subnets, security groups, ports and create a bastion server:
+
 ```bash
 make plan
 make apply
 ```
+
+Once the bastion server is created, run the following to create a provision script with all the variables assigned, copy the script to the Bastion server then remotely execute the script.  This allows the script to be executed multiple times, as needed, without needing to destroy the Bastion server.
+
+```bash
+make prepare
+make provision
+```
+
+If the provision script fails, run `make provision` again from your laptop.  If you want someone to help you, a full copy of the provision script is also on the Bastion server at `/home/ubuntu/provision.sh`
 
 After Initial Install
 ---------------------
@@ -79,6 +90,12 @@ At the end of the output of the terraform run, there will be a section called `O
 
 ```
 ssh -i ~/.ssh/example.pem ubuntu@$(terraform output bastion_ip)
+```
+
+As an alternative there is a script provided for you which will execute ssh with all the necessary parameters.  From the root of the project folder run
+
+```
+provision/bastion-ssh
 ```
 
 Once in, you can look in `workspace/deployments/cf-boshworkspace/` for the bosh deployment manifest and template files. Any further updates or changes to your microbosh or Cloud Foundry environment will be done manually using this machine as your work space. Terraform provisioning scripts are not intended for long-term updates or maintenance.
