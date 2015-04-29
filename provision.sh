@@ -233,7 +233,6 @@ git commit -am 'commit of the local deployment configs'
 # Keep trying until there is a successful BOSH deploy.
 for i in {0..2}
 do bosh -n deploy
-  echo "XXXXXXXXX: $?"
 done
 
 echo "Install Traveling CF"
