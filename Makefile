@@ -1,4 +1,4 @@
-.PHONY: all plan apply destroy provision prepare
+.PHONY: all plan apply destroy provision
 
 all: plan apply
 
@@ -18,10 +18,8 @@ clean:
 	rm -f terraform.tfstate
 	rm -fR .terraform/
 
-prepare:
-	./provision/prepare-provision
-
 provision:
+	./provision/prepare-provision
 	./provision/provision-ssh
 
 test:

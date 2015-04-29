@@ -77,7 +77,6 @@ make apply
 Once the bastion server is created, run the following to create a provision script with all the variables assigned, copy the script to the Bastion server then remotely execute the script.  This allows the script to be executed multiple times, as needed, without needing to destroy the Bastion server.
 
 ```bash
-make prepare
 make provision
 ```
 
