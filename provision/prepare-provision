@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# USAGE: provision/configure-provision
+# USAGE: provision/prepare-provision
 
 fail() {
   echo "$*" >&2
@@ -10,17 +10,6 @@ fail() {
 cp -R provision.sh provision/provision.sh
 (( "$?" == "0" )) ||
   fail "Could not copy the original provision.sh file to the provision folder."
-
-# TERRAFORM_DIR=${TERRAFORM_DIR:-terraform-aws-cf-install}
-#
-# if [[ ! -f $TERRAFORM_DIR/terraform.tfstate ]]; then
-#   echo "File $TERRAFORM_DIR/terraform.tfstate is missing; and is required"
-#   exit 1
-# fi
-#
-# pushd $TERRAFORM_DIR
-#   ssh ubuntu@$(terraform output bastion_ip) -i $(terraform output aws_key_path)
-# popd
 
 assure_string_in_file() {
   assurefilename=$1

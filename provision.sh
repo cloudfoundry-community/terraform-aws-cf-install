@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # fail immediately on error
-# set -e
+set -e -x
 
 # echo "$0 $*" > ~/provision.log
 
@@ -218,6 +218,8 @@ if [[ ! "$deployedVersion" == "${cfReleaseVersion}" ]]; then
   bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
   bosh deployment cf-aws-${CF_SIZE}
   bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
+else
+  bosh deployment cf-aws-${CF_SIZE}
 fi
 
 # Work around until bosh-workspace can handle submodules
@@ -229,7 +231,7 @@ fi
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
-git commit -am 'commit of the local deployment configs'
+#git commit -am 'commit of the local deployment configs'
 
 # Keep trying until there is a successful BOSH deploy.
 for i in {0..2}
@@ -247,7 +249,9 @@ fi
 if [[ $INSTALL_DOCKER == "true" ]]; then
 
   cd ~/workspace/deployments
-  git clone https://github.com/cloudfoundry-community/docker-services-boshworkspace.git
+  if [[ ! -d "$HOME/workspace/deployments/docker-services-boshworkspace" ]]; then
+    git clone https://github.com/cloudfoundry-community/docker-services-boshworkspace.git
+  fi
 
   echo "Update the docker-aws-vpc.yml with cf-boshworkspace parameters"
   /home/ubuntu/workspace/deployments/docker-services-boshworkspace/shell/populate-docker-aws-vpc ${CF_SIZE}
