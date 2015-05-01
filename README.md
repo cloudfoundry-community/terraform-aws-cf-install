@@ -94,7 +94,7 @@ ssh -i ~/.ssh/example.pem ubuntu@$(terraform output bastion_ip)
 As an alternative there is a script provided for you which will execute ssh with all the necessary parameters.  From the root of the project folder run
 
 ```
-provision/bastion-ssh
+make ssh
 ```
 
 Once in, you can look in `workspace/deployments/cf-boshworkspace/` for the bosh deployment manifest and template files. Any further updates or changes to your microbosh or Cloud Foundry environment will be done manually using this machine as your work space. Terraform provisioning scripts are not intended for long-term updates or maintenance.
