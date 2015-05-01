@@ -75,7 +75,7 @@ esac
 # Install RVM
 
 if [[ ! -d "$HOME/rvm" ]]; then
-  git clone git://github.com/rvm/rvm
+  git clone https://github.com/rvm/rvm
 fi
 
 if [[ ! -d "$HOME/.rvm" ]]; then
