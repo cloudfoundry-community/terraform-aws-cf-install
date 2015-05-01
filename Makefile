@@ -1,6 +1,6 @@
 .PHONY: all plan apply destroy provision
 
-all: plan apply
+all: plan apply provision
 
 plan:
 	terraform get -update
