@@ -231,7 +231,18 @@ fi
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
-#git commit -am 'commit of the local deployment configs'
+currentGitUser="$(git config user.name || /bin/true )"
+currentGitEmail="$(git config user.email || /bin/true )"
+if [[ "${currentGitUser}" == "" || "${currentGitEmail}" == "" ]]; then
+  git config --global user.email "${USER}@${HOSTNAME}"
+  git config --global user.name "${USER}"
+  echo "blarg"
+fi
+
+gitDiff="$(git diff)"
+if [[ ! "${gitDiff}" == "" ]]; then
+  git commit -am 'commit of the local deployment configs'
+fi
 
 # Keep trying until there is a successful BOSH deploy.
 for i in {0..2}
