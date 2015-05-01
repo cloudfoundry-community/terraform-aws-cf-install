@@ -18,10 +18,17 @@ assure_string_in_file() {
 
   re="s#^.*$assuresearchString.*#$assurereplaceString#"
 
-  #ToDo: Detect OSX v other linux for ''
-  sed -i '' "${re}" "$assurefilename"
-  (( "$?" == "0" )) ||
-    fail "Could not execute execute sed command replace $assuresearchString with $assurereplaceString in file $assurefilename, terminating install."
+  #Detect OSX v other linux for sed ''
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    sed -i '' "${re}" "$assurefilename"
+    (( "$?" == "0" )) ||
+      fail "Could not execute execute sed command replace $assuresearchString with $assurereplaceString in file $assurefilename, terminating install."
+  else
+    sed -i "${re}" "$assurefilename"
+    (( "$?" == "0" )) ||
+      fail "Could not execute execute sed command replace $assuresearchString with $assurereplaceString in file $assurefilename, terminating install."
+  fi
+
 }
 
 filename_provision="provision/provision.sh"
