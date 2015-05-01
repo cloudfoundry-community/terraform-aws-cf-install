@@ -1,4 +1,4 @@
-.PHONY: all plan apply destroy provision
+.PHONY: all plan apply destroy provision ssh
 
 all: plan apply provision
 
@@ -21,6 +21,9 @@ clean:
 provision:
 	./provision/prepare-provision
 	./provision/provision-ssh
+
+ssh:
+	./provision/bastion-ssh
 
 test:
 	./scripts/testPlan
