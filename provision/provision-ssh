@@ -2,28 +2,28 @@
 
 # USAGE: ./bastion-ssh
 
-set -x
 
 #You need the sed nonsense if the path to your key has a ~ in it
 keyPath=$(terraform output key_path | sed -e "s#^~#$HOME#")
 scriptPath="provision/provision.sh"
 targetPath="/home/ubuntu/provision.sh"
 bastionIP=$(terraform output bastion_ip)
-
+maxConnectionAttempts=10
+sleepSeconds=10
 
 #Wait until SSH on Bastion server is working
 echo "Attempting to SSH to Bastion server..."
 index=1
-set +x
-while (( $index != 0 ))
+
+while (( $index <= $maxConnectionAttempts ))
 do
   scp -o StrictHostKeyChecking=no -i ${keyPath} $scriptPath ubuntu@$bastionIP:$targetPath
   case $? in
     (0) echo "${index}> Success"; break ;;
-    (*) echo "${index}> Bastion SSH server not ready yet..." ;;
+    (*) echo "${index} of ${maxConnectionAttempts}> Bastion SSH server not ready yet, waiting ${sleepSeconds} seconds..." ;;
   esac
-  sleep 5
+  sleep $sleepSeconds
   ((index+=1))
 done
-set -x
+
 ssh -i ${keyPath} ubuntu@$bastionIP "chmod +x $targetPath ; $targetPath"
