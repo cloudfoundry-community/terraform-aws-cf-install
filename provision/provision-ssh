@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# USAGE: ./bastion-ssh
+# USAGE: ./provision-ssh
 
+state_file="${STATE_FILE:-./terraform.tfstate}"
 
 #You need the sed nonsense if the path to your key has a ~ in it
-keyPath=$(terraform output key_path | sed -e "s#^~#$HOME#")
+keyPath=$(terraform output -state="${state_file}" aws_key_path | sed -e "s#^~#$HOME#")
 scriptPath="provision/provision.sh"
 targetPath="/home/ubuntu/provision.sh"
-bastionIP=$(terraform output bastion_ip)
+bastionIP=$(terraform output -state="${state_file}" bastion_ip)
 maxConnectionAttempts=10
 sleepSeconds=10
 
