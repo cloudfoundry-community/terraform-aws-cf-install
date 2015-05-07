@@ -154,6 +154,10 @@ output "cf_sg" {
 	value = "${module.cf.aws_security_group_cf_name}"
 }
 
+output "cf_sg_id" {
+	value = "${module.cf.aws_security_group_cf_id}"
+}
+
 output "cf_boshworkspace_version" {
 	value = "${var.cf_boshworkspace_version}"
 }
