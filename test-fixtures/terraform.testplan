@@ -11,7 +11,7 @@ Note: You didn't specify an "-out" parameter to save this plan, so when
 "apply" is called, Terraform can't guarantee this is what will execute.
 
 [32m+ aws_instance.bastion
-[0m    ami:                                               "" => "ami-736e6536"
+[0m    ami:                                               "" => "ami-37501207"
     associate_public_ip_address:                       "" => "1"
     availability_zone:                                 "" => "<computed>"
     ebs_block_device.#:                                "" => "1"
