@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # fail immediately on error
-set -e
+set -e -x
 
-echo "$0 $*" > ~/provision.log
+# echo "$0 $*" > ~/provision.log
+
+fail() {
+  echo "$*" >&2
+  exit 1
+}
 
 # Variables passed in from terraform, see aws-vpc.tf, the "remote-exec" provisioner
 AWS_KEY_ID=${1}
@@ -29,16 +34,18 @@ DOCKER_SUBNET=${20}
 INSTALL_DOCKER=${21}
 
 boshDirectorHost="${IPMASK}.1.4"
-cfReleaseVersion="205"
-cfStemcell="light-bosh-stemcell-2778-aws-xen-ubuntu-trusty-go_agent.tgz"
+cfReleaseVersion="207"
 
 cd $HOME
+(("$?" == "0")) ||
+  fail "Could not find HOME folder, terminating install."
+
 
 # Generate the key that will be used to ssh between the bastion and the
 # microbosh machine
-ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
-
-# Install RVM
+if [[ ! -f ~/.ssh/id_rsa ]]; then
+  ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+fi
 
 # Prepare the jumpbox to be able to install ruby and git-based bosh and cf repos
 
@@ -52,7 +59,7 @@ case "${release}" in
       libpq-dev libmysqlclient-dev libsqlite3-dev \
       g++ gcc make libc6-dev libreadline6-dev zlib1g-dev libssl-dev libyaml-dev \
       libsqlite3-dev sqlite3 autoconf libgdbm-dev libncurses5-dev automake \
-      libtool bison pkg-config libffi-dev
+      libtool bison pkg-config libffi-dev cmake
     ;;
   (*Centos*|*RedHat*|*Amazon*)
     sudo yum update -y
@@ -61,27 +68,37 @@ case "${release}" in
     zlib zlib-devel libevent libevent-devel readline readline-devel cmake ntp \
     htop wget tmux gcc g++ autoconf pcre pcre-devel vim-enhanced gcc mysql-devel \
     postgresql-devel postgresql-libs sqlite-devel libxslt-devel libxml2-devel \
-    yajl-ruby
+    yajl-ruby cmake
     ;;
 esac
 
-git clone git://github.com/rvm/rvm
-cd rvm
-./install
+# Install RVM
+
+if [[ ! -d "$HOME/rvm" ]]; then
+  git clone https://github.com/rvm/rvm
+fi
+
+if [[ ! -d "$HOME/.rvm" ]]; then
+  cd rvm
+  ./install
+fi
+
 cd $HOME
 
-~/.rvm/bin/rvm install ruby-2.1
-~/.rvm/bin/rvm alias create default 2.1
+if [[ ! "$(ls -A $HOME/.rvm/environments)" ]]; then
+  ~/.rvm/bin/rvm install ruby-2.1
+fi
+
+if [[ ! -d "$HOME/.rvm/environments/default" ]]; then
+  ~/.rvm/bin/rvm alias create default 2.1
+fi
+
 source ~/.rvm/environments/default
 source ~/.rvm/scripts/rvm
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
 gem install fog-aws -v 0.1.1 --no-ri --no-rdoc --quiet
-gem install git -v 1.2.7  #1.2.9.1 is not backwards compatible
-gem install bosh_cli -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bosh_cli_plugin_micro -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bosh_cli_plugin_aws -v 1.2891.0 --no-ri --no-rdoc --quiet
-gem install bundler bosh-bootstrap bosh-workspace --no-ri --no-rdoc --quiet
+gem install bundler bosh-bootstrap --no-ri --no-rdoc --quiet
 
 
 # We use fog below, and bosh-bootstrap uses it as well
@@ -93,18 +110,25 @@ cat <<EOF > ~/.fog
 EOF
 
 # This volume is created using terraform in aws-bosh.tf
-sudo /sbin/mkfs.ext4 /dev/xvdc
-sudo /sbin/e2label /dev/xvdc workspace
-echo 'LABEL=workspace /home/ubuntu/workspace ext4 defaults,discard 0 0' | sudo tee -a /etc/fstab
-mkdir -p /home/ubuntu/workspace
-sudo mount -a
-sudo chown -R ubuntu:ubuntu /home/ubuntu/workspace
+if [[ ! -d "$HOME/workspace" ]]; then
+  sudo /sbin/mkfs.ext4 /dev/xvdc
+  sudo /sbin/e2label /dev/xvdc workspace
+  echo 'LABEL=workspace /home/ubuntu/workspace ext4 defaults,discard 0 0' | sudo tee -a /etc/fstab
+  mkdir -p /home/ubuntu/workspace
+  sudo mount -a
+  sudo chown -R ubuntu:ubuntu /home/ubuntu/workspace
+fi
 
 # As long as we have a large volume to work with, we'll move /tmp over there
 # You can always use a bigger /tmp
-sudo rsync -avq /tmp/ /home/ubuntu/workspace/tmp/
-sudo rm -fR /tmp
-sudo ln -s /home/ubuntu/workspace/tmp /tmp
+if [[ ! -d "$HOME/workspace/tmp" ]]; then
+  sudo rsync -avq /tmp/ /home/ubuntu/workspace/tmp/
+fi
+
+if ! [[ -L "/tmp" && -d "/tmp" ]]; then
+  sudo rm -fR /tmp
+  sudo ln -s /home/ubuntu/workspace/tmp /tmp
+fi
 
 # bosh-bootstrap handles provisioning the microbosh machine and installing bosh
 # on it. This is very nice of bosh-bootstrap. Everyone make sure to thank bosh-bootstrap
@@ -128,19 +152,30 @@ address:
   ip: ${boshDirectorHost}
 EOF
 
-bosh bootstrap deploy
+if [[ ! -d "$HOME/workspace/deployments/microbosh/deployments" ]]; then
+  bosh bootstrap deploy
+fi
 
 # We've hardcoded the IP of the microbosh machine, because convenience
 bosh -n target https://${boshDirectorHost}:25555
 bosh login admin admin
+
+if [[ ! "$?" == 0 ]]; then
+  #wipe the ~/workspace/deployments/microbosh folder contents and try again
+  echo "Retry deploying the micro bosh..."
+fi
 popd
 
 # There is a specific branch of cf-boshworkspace that we use for terraform. This
 # may change in the future if we come up with a better way to handle maintaining
 # configs in a git repo
-git clone --branch  ${CF_BOSHWORKSPACE_VERSION} http://github.com/cloudfoundry-community/cf-boshworkspace
+if [[ ! -d "$HOME/workspace/deployments/cf-boshworkspace" ]]; then
+  git clone --branch  ${CF_BOSHWORKSPACE_VERSION} http://github.com/cloudfoundry-community/cf-boshworkspace
+fi
 pushd cf-boshworkspace
 mkdir -p ssh
+gem install bundler
+bundle install
 
 # Pull out the UUID of the director - bosh_cli needs it in the deployment to
 # know it's hitting the right microbosh instance
@@ -151,10 +186,12 @@ if [[ $CF_DOMAIN == "XIP" ]]; then
   CF_DOMAIN="${CF_IP}.xip.io"
 fi
 
-curl -sOL https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.3/spiff_linux_amd64.zip
-unzip spiff_linux_amd64.zip
-sudo mv ./spiff /usr/local/bin/spiff
-rm spiff_linux_amd64.zip
+if [[ ! -f "/usr/local/bin/spiff" ]]; then
+  curl -sOL https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.3/spiff_linux_amd64.zip
+  unzip spiff_linux_amd64.zip
+  sudo mv ./spiff /usr/local/bin/spiff
+  rm spiff_linux_amd64.zip
+fi
 
 # This is some hackwork to get the configs right. Could be changed in the future
 /bin/sed -i \
@@ -175,14 +212,37 @@ rm spiff_linux_amd64.zip
 
 
 # Upload the bosh release, set the deployment, and execute
-bundle install
-bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
-bosh deployment cf-aws-${CF_SIZE}
-bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
+deployedVersion=$(bosh releases | grep " ${cfReleaseVersion}" | awk '{print $4}')
+deployedVersion="${deployedVersion//[^[:alnum:]]/}"
+if [[ ! "$deployedVersion" == "${cfReleaseVersion}" ]]; then
+  bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
+  bosh deployment cf-aws-${CF_SIZE}
+  bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
+else
+  bosh deployment cf-aws-${CF_SIZE}
+fi
+
+# Work around until bosh-workspace can handle submodules
+if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
+  pushd .releases/cf
+  ./update
+  popd
+fi
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
-git commit -am 'commit of the local deployment configs'
+currentGitUser="$(git config user.name || /bin/true )"
+currentGitEmail="$(git config user.email || /bin/true )"
+if [[ "${currentGitUser}" == "" || "${currentGitEmail}" == "" ]]; then
+  git config --global user.email "${USER}@${HOSTNAME}"
+  git config --global user.name "${USER}"
+  echo "blarg"
+fi
+
+gitDiff="$(git diff)"
+if [[ ! "${gitDiff}" == "" ]]; then
+  git commit -am 'commit of the local deployment configs'
+fi
 
 # Keep trying until there is a successful BOSH deploy.
 for i in {0..2}
@@ -190,17 +250,22 @@ do bosh -n deploy
 done
 
 echo "Install Traveling CF"
-curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-cf-admin/master/scripts/installer | bash
-echo 'export PATH=$PATH:$HOME/bin/traveling-cf-admin' >> ~/.bashrc
+if [[ "$(cat $HOME/.bashrc | grep 'export PATH=$PATH:$HOME/bin/traveling-cf-admin')" == "" ]]; then
+  curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-cf-admin/master/scripts/installer | bash
+  echo 'export PATH=$PATH:$HOME/bin/traveling-cf-admin' >> $HOME/.bashrc
+  source $HOME/.bashrc
+fi
 
 # Now deploy docker services if requested
 if [[ $INSTALL_DOCKER == "true" ]]; then
 
   cd ~/workspace/deployments
-  git clone https://github.com/cloudfoundry-community/docker-services-boshworkspace.git
+  if [[ ! -d "$HOME/workspace/deployments/docker-services-boshworkspace" ]]; then
+    git clone https://github.com/cloudfoundry-community/docker-services-boshworkspace.git
+  fi
 
   echo "Update the docker-aws-vpc.yml with cf-boshworkspace parameters"
-  /home/ubuntu/workspace/deployments/docker-services-boshworkspace/shell/populate-docker-aws-vpc
+  /home/ubuntu/workspace/deployments/docker-services-boshworkspace/shell/populate-docker-aws-vpc ${CF_SIZE}
   dockerDeploymentManifest="/home/ubuntu/workspace/deployments/docker-services-boshworkspace/deployments/docker-aws-vpc.yml"
   /bin/sed -i "s/SUBNET_ID/${DOCKER_SUBNET}/g" "${dockerDeploymentManifest}"
 
@@ -215,6 +280,9 @@ if [[ $INSTALL_DOCKER == "true" ]]; then
   done
 
 fi
+
+echo "Provision script completed..."
+exit 0
 
 # FIXME: enable this again when smoke_tests work
 # bosh run errand smoke_tests

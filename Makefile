@@ -1,6 +1,6 @@
-.PHONY: all plan apply destroy
+.PHONY: all plan apply destroy provision ssh
 
-all: plan apply
+all: plan apply provision
 
 plan:
 	terraform get -update
@@ -17,6 +17,13 @@ clean:
 	rm -f terraform.tfplan
 	rm -f terraform.tfstate
 	rm -fR .terraform/
+
+provision:
+	./provision/prepare-provision
+	./provision/provision-ssh
+
+ssh:
+	./provision/bastion-ssh
 
 test:
 	./scripts/testPlan
