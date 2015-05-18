@@ -34,14 +34,14 @@ Deploy Cloud Foundry
 
 The one step that isn't automated is the creation of SSH keys. We are waiting for that feature to be [added to terraform](https://github.com/hashicorp/terraform/issues/28). An AWS SSH Key need to be created in desired region prior to running the following commands. Note the name of the key and the path to the pem/private key file for use further down.
 
-You **must** being using at least terraform version 0.4.0.
+You **must** being using at least terraform version 0.5.0.
 
 ```
 $ terraform -v
-Terraform v0.4.0
+Terraform v0.5.0
 ```
 
-You can install terraform 0.4.0+ via [https://www.terraform.io/downloads.html]
+You can install terraform 0.5.0+ via [https://www.terraform.io/downloads.html]
 
 Your chosen AWS Region must have sufficient quota to spin up **all** of the machines. While building various bits, the install process can use up to 13 VMs, settling down to use 7 machines long-term (more, if you want more runners).
 
