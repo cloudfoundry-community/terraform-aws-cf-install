@@ -11,7 +11,7 @@ variable "install_docker_services" {
 
 variable "cf1_az" {
     default = {
-        us-east-1 = "us-east-1a"
+        us-east-1 = "us-east-1c"
         us-west-1 = "us-west-1c"
         us-west-2 = "us-west-2a"
         ap-northeast-1 = "ap-northeast-1a"
@@ -24,7 +24,7 @@ variable "cf1_az" {
 
 variable "cf2_az" {
     default = {
-        us-east-1 = "us-east-1b"
+        us-east-1 = "us-east-1e"
         us-west-1 = "us-west-1b"
         us-west-2 = "us-west-2b"
         ap-northeast-1 = "ap-northeast-1b"
