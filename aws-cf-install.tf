@@ -96,7 +96,15 @@ output "cf_domain" {
   value = "${var.cf_domain}"
 }
 
-#########
+resource "aws_security_group_rule" "nat" {
+	source_security_group_id = "${module.cf.aws_security_group_cf_id}"
+
+	security_group_id = "${module.vpc.aws_security_group_nat_id}"
+	from_port = -1
+	to_port = -1
+	protocol = "-1"
+	type = "ingress"
+}
 
 output "aws_access_key" {
 	value = "${var.aws_access_key}"

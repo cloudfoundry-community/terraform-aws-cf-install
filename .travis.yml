@@ -1,5 +1,5 @@
 language: c
 before_install:
-  - wget https://dl.bintray.com/mitchellh/terraform/terraform_0.4.0_linux_amd64.zip -O /tmp/terraform.zip
+  - wget https://dl.bintray.com/mitchellh/terraform/terraform_0.5.0_linux_amd64.zip -O /tmp/terraform.zip
   - sudo unzip -d /usr/local/bin/ /tmp/terraform.zip
 script: make test
