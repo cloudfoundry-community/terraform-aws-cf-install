@@ -33,6 +33,17 @@ CF_SIZE=${19}
 DOCKER_SUBNET=${20}
 INSTALL_DOCKER=${21}
 
+BACKBONE_Z1_COUNT=COUNT
+API_Z1_COUNT=COUNT
+SERVICES_Z1_COUNT=COUNT
+HEALTH_Z1_COUNT=COUNT
+RUNNER_Z1_COUNT=COUNT
+BACKBONE_Z2_COUNT=COUNT
+API_Z2_COUNT=COUNT
+SERVICES_Z2_COUNT=COUNT
+HEALTH_Z2_COUNT=COUNT
+RUNNER_Z2_COUNT=COUNT
+
 boshDirectorHost="${IPMASK}.1.4"
 cfReleaseVersion="207"
 
@@ -208,6 +219,16 @@ fi
   -e "s/IPMASK/${IPMASK}/g" \
   -e "s/CF_SG/${CF_SG}/g" \
   -e "s/LB_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" \
+  -e "s/backbone_z1:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/backbone_z1:\1${BACKBONE_Z1_COUNT}\2/" \
+  -e "s/api_z1:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/api_z1:\1${API_Z1_COUNT}\2/" \
+  -e "s/services_z1:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/services_z1:\1${SERVICES_Z1_COUNT}\2/" \
+  -e "s/health_z1:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/health_z1:\1${HEALTH_Z1_COUNT}\2/" \
+  -e "s/runner_z1:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/runner_z1:\1${RUNNER_Z1_COUNT}\2/" \
+  -e "s/backbone_z2:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/backbone_z2:\1${BACKBONE_Z2_COUNT}\2/" \
+  -e "s/api_z2:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/api_z2:\1${API_Z2_COUNT}\2/" \
+  -e "s/services_z2:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/services_z2:\1${SERVICES_Z2_COUNT}\2/" \
+  -e "s/health_z2:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/health_z2:\1${HEALTH_Z2_COUNT}\2/" \
+  -e "s/runner_z2:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/runner_z2:\1${RUNNER_Z2_COUNT}\2/" \
   deployments/cf-aws-${CF_SIZE}.yml
 
 
