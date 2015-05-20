@@ -181,3 +181,14 @@ output "docker_subnet" {
 output "install_docker_services" {
 	value = "${var.install_docker_services}"
 }
+
+output "backbone_z1_count" { value = "${lookup(var.backbone_z1_count, var.deployment_size)}" }
+output "api_z1_count"      { value = "${lookup(var.api_z1_count,      var.deployment_size)}" }
+output "services_z1_count" { value = "${lookup(var.services_z1_count, var.deployment_size)}" }
+output "health_z1_count"   { value = "${lookup(var.health_z1_count,   var.deployment_size)}" }
+output "runner_z1_count"   { value = "${lookup(var.runner_z1_count,   var.deployment_size)}" }
+output "backbone_z2_count" { value = "${lookup(var.backbone_z2_count, var.deployment_size)}" }
+output "api_z2_count"      { value = "${lookup(var.api_z2_count,      var.deployment_size)}" }
+output "services_z2_count" { value = "${lookup(var.services_z2_count, var.deployment_size)}" }
+output "health_z2_count"   { value = "${lookup(var.health_z2_count,   var.deployment_size)}" }
+output "runner_z2_count"   { value = "${lookup(var.runner_z2_count,   var.deployment_size)}" }

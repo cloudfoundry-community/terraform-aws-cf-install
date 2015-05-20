@@ -55,3 +55,11 @@ assure_string_in_file $filename_provision 'CF_BOSHWORKSPACE_VERSION=${18}' "CF_B
 assure_string_in_file $filename_provision 'CF_SIZE=${19}' "CF_SIZE=\"$(terraform output -state="${state_file}" cf_size)\""
 assure_string_in_file $filename_provision 'DOCKER_SUBNET=${20}' "DOCKER_SUBNET=\"$(terraform output -state="${state_file}" docker_subnet)\""
 assure_string_in_file $filename_provision 'INSTALL_DOCKER=${21}' "INSTALL_DOCKER=\"$(terraform output -state="${state_file}" install_docker_services)\""
+
+for job in BACKBONE API SERVICES HEALTH RUNNER; do
+	for zone in Z1 Z2; do
+		uc_job_name=${job}_${zone}_COUNT
+		lc_job_name=$(echo $uc_job_name | tr '[:upper:]' '[:lower:]')
+		assure_string_in_file $filename_provision "${uc_job_name}=COUNT" "${uc_job_name}=\"$(terraform output -state="${state_file}" ${lc_job_name})\""
+	done
+done
