@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # fail immediately on error
-set -e -x
+set -e
 
 # echo "$0 $*" > ~/provision.log
 
