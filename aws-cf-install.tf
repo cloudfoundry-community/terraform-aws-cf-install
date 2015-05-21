@@ -182,6 +182,10 @@ output "install_docker_services" {
 	value = "${var.install_docker_services}"
 }
 
+output "cf_release_version" {
+	value = "${var.cf_release_version}"
+}
+
 output "backbone_z1_count" { value = "${lookup(var.backbone_z1_count, var.deployment_size)}" }
 output "api_z1_count"      { value = "${lookup(var.api_z1_count,      var.deployment_size)}" }
 output "services_z1_count" { value = "${lookup(var.services_z1_count, var.deployment_size)}" }

@@ -32,6 +32,7 @@ CF_BOSHWORKSPACE_VERSION=${18}
 CF_SIZE=${19}
 DOCKER_SUBNET=${20}
 INSTALL_DOCKER=${21}
+CF_RELEASE_VERSION=${22}
 
 BACKBONE_Z1_COUNT=COUNT
 API_Z1_COUNT=COUNT
@@ -45,7 +46,6 @@ HEALTH_Z2_COUNT=COUNT
 RUNNER_Z2_COUNT=COUNT
 
 boshDirectorHost="${IPMASK}.1.4"
-cfReleaseVersion="207"
 
 cd $HOME
 (("$?" == "0")) ||
@@ -146,6 +146,7 @@ fi
 mkdir -p {bin,workspace/deployments/microbosh,workspace/tools}
 pushd workspace/deployments
 pushd microbosh
+create_settings_yml() {
 cat <<EOF > settings.yml
 ---
 bosh:
@@ -162,10 +163,31 @@ address:
   subnet_id: ${BOSH_SUBNET}
   ip: ${boshDirectorHost}
 EOF
+}
+
+if [[ ! -f "$HOME/workspace/deployments/microbosh/settings.yml" ]]; then
+  create_settings_yml
+fi
 
 if [[ ! -d "$HOME/workspace/deployments/microbosh/deployments" ]]; then
   bosh bootstrap deploy
 fi
+
+
+rebuild_micro_bosh_easy() {
+  echo "Retry deploying the micro bosh, attempting bosh bootstrap delete..."
+  bosh bootstrap delete || rebuild_micro_bosh_hard
+  bosh bootstrap deploy
+  bosh -n target https://${boshDirectorHost}:25555
+  bosh login admin admin
+}
+
+rebuild_micro_bosh_hard() {
+  echo "Retry deploying the micro bosh, attempting bosh bootstrap delete..."
+  rm -rf "$HOME/workspace/deployments/microbosh/deployments"
+  rm -rf "$HOME/workspace/deployments/microbosh/ssh"
+  create_settings_yml
+}
 
 # We've hardcoded the IP of the microbosh machine, because convenience
 bosh -n target https://${boshDirectorHost}:25555
@@ -233,10 +255,10 @@ fi
 
 
 # Upload the bosh release, set the deployment, and execute
-deployedVersion=$(bosh releases | grep " ${cfReleaseVersion}" | awk '{print $4}')
+deployedVersion=$(bosh releases | grep " ${CF_RELEASE_VERSION}" | awk '{print $4}')
 deployedVersion="${deployedVersion//[^[:alnum:]]/}"
-if [[ ! "$deployedVersion" == "${cfReleaseVersion}" ]]; then
-  bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${cfReleaseVersion}
+if [[ ! "$deployedVersion" == "${CF_RELEASE_VERSION}" ]]; then
+  bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${CF_RELEASE_VERSION}
   bosh deployment cf-aws-${CF_SIZE}
   bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 else
