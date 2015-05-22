@@ -241,6 +241,7 @@ fi
   -e "s/IPMASK/${IPMASK}/g" \
   -e "s/CF_SG/${CF_SG}/g" \
   -e "s/LB_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" \
+  -e "s/CF_RELEASE_VERSION/${CF_RELEASE_VERSION}/g" \
   -e "s/backbone_z1:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/backbone_z1:\1${BACKBONE_Z1_COUNT}\2/" \
   -e "s/api_z1:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/api_z1:\1${API_Z1_COUNT}\2/" \
   -e "s/services_z1:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/services_z1:\1${SERVICES_Z1_COUNT}\2/" \
