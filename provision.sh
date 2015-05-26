@@ -243,13 +243,6 @@ else
   bosh deployment cf-aws-${CF_SIZE}
 fi
 
-# Work around until bosh-workspace can handle submodules
-if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
-  pushd .releases/cf
-  ./update
-  popd
-fi
-
 # We locally commit the changes to the repo, so that errant git checkouts don't
 # cause havok
 currentGitUser="$(git config user.name || /bin/true )"
