@@ -85,13 +85,10 @@ esac
 
 # Install RVM
 
-if [[ ! -d "$HOME/rvm" ]]; then
-  git clone https://github.com/rvm/rvm
-fi
-
 if [[ ! -d "$HOME/.rvm" ]]; then
-  cd rvm
-  ./install
+  cd $HOME
+  gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+  curl -sSL https://get.rvm.io | bash -s stable
 fi
 
 cd $HOME
@@ -256,7 +253,7 @@ fi
 
 
 # Upload the bosh release, set the deployment, and execute
-deployedVersion=$(bosh releases | grep " ${CF_RELEASE_VERSION}" | awk '{print $4}')
+deployedVersion=$(bosh releases | grep " ${CF_RELEASE_VERSION}" | cut -d'|' -f 3 )
 deployedVersion="${deployedVersion//[^[:alnum:]]/}"
 if [[ ! "$deployedVersion" == "${CF_RELEASE_VERSION}" ]]; then
   bosh upload release https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${CF_RELEASE_VERSION}
@@ -264,13 +261,6 @@ if [[ ! "$deployedVersion" == "${CF_RELEASE_VERSION}" ]]; then
   bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 else
   bosh deployment cf-aws-${CF_SIZE}
-fi
-
-# Work around until bosh-workspace can handle submodules
-if [[ "cf-aws-${CF_SIZE}" == "cf-aws-large" ]]; then
-  pushd .releases/cf
-  ./update
-  popd
 fi
 
 # We locally commit the changes to the repo, so that errant git checkouts don't
