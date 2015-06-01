@@ -51,7 +51,7 @@ variable "cf_boshworkspace_version" {
 }
 
 variable "cf_release_version" {
-  default = "210"
+  default = "207"
 }
 
 variable "cf_size" {
