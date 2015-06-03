@@ -38,6 +38,11 @@ variable "cf2_az" {
 variable "network" {
 	default = "10.10"
 }
+
+variable "debug" {
+  default = "false"
+}
+
 variable "cf_admin_pass" {
   default = "c1oudc0wc1oudc0w"
 }

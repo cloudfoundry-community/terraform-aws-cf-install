@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # fail immediately on error
-set -e -x
+set -e
 
 # echo "$0 $*" > ~/provision.log
 
@@ -33,6 +33,7 @@ CF_SIZE=${19}
 DOCKER_SUBNET=${20}
 INSTALL_DOCKER=${21}
 CF_RELEASE_VERSION=${22}
+DEBUG=${23}
 
 BACKBONE_Z1_COUNT=COUNT
 API_Z1_COUNT=COUNT
@@ -51,6 +52,10 @@ cd $HOME
 (("$?" == "0")) ||
   fail "Could not find HOME folder, terminating install."
 
+
+if [[ $DEBUG == "true" ]]; then
+  set -x
+fi
 
 # Generate the key that will be used to ssh between the bastion and the
 # microbosh machine
