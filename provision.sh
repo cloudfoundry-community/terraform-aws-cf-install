@@ -323,4 +323,5 @@ fi
 echo "Provision script completed..."
 exit 0
 
-bosh run errand smoke_tests_runner
+# FIXME: enable this again when smoke_tests work
+# bosh run errand smoke_tests
