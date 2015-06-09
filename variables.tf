@@ -175,4 +175,6 @@ variable runner_z2_count {
     }
 }
 
-variable private_cf_domains {}
+variable "private_cf_domains" {
+    default = ""
+}
