@@ -34,6 +34,7 @@ DOCKER_SUBNET=${20}
 INSTALL_DOCKER=${21}
 CF_RELEASE_VERSION=${22}
 DEBUG=${23}
+PRIVATE_DOMAINS=${24}
 
 BACKBONE_Z1_COUNT=COUNT
 API_Z1_COUNT=COUNT
@@ -45,6 +46,7 @@ API_Z2_COUNT=COUNT
 SERVICES_Z2_COUNT=COUNT
 HEALTH_Z2_COUNT=COUNT
 RUNNER_Z2_COUNT=COUNT
+
 
 boshDirectorHost="${IPMASK}.1.4"
 
@@ -255,6 +257,11 @@ fi
   -e "s/health_z2:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/health_z2:\1${HEALTH_Z2_COUNT}\2/" \
   -e "s/runner_z2:\( \+\)[0-9\.]\+\(.*# MARKER_FOR_PROVISION.*\)/runner_z2:\1${RUNNER_Z2_COUNT}\2/" \
   deployments/cf-aws-${CF_SIZE}.yml
+
+for domain in $(echo $PRIVATE_DOMAINS | tr "," "\n"); do
+  perl -pi -e "s/(\s\+)- PRIVATE_DOMAIN_PLACEHOLDER/\$1- $domain\n\$1- PRIVATE_DOMAIN_PLACEHOLDER/" deployments/cf-aws-${CF_SIZE}.yml
+done
+perl -pi -e "s/\s\+- PRIVATE_DOMAIN_PLACEHOLDER//" deployments/cf-aws-${CF_SIZE}.yml
 
 
 # Upload the bosh release, set the deployment, and execute
