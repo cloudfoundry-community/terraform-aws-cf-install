@@ -295,6 +295,9 @@ for i in {0..2}
 do bosh -n deploy
 done
 
+# Run smoke tests
+bosh run errand smoke_tests_runner
+
 echo "Install Traveling CF"
 if [[ "$(cat $HOME/.bashrc | grep 'export PATH=$PATH:$HOME/bin/traveling-cf-admin')" == "" ]]; then
   curl -s https://raw.githubusercontent.com/cloudfoundry-community/traveling-cf-admin/master/scripts/installer | bash
@@ -329,6 +332,3 @@ fi
 
 echo "Provision script completed..."
 exit 0
-
-# FIXME: enable this again when smoke_tests work
-# bosh run errand smoke_tests
