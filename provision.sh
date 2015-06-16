@@ -345,13 +345,13 @@ if [[ $INSTALL_LOGSEARCH == "true" ]]; then
     cd logsearch-boshworkspace
 
     /bin/sed -i \
-    -e "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" \
-    -e "s/CF_DOMAIN/${CF_DOMAIN}/g" \
-    -e "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" \
-    -e "s/CLOUDFOUNDRY_SG/${CF_SG}/g" \
-    -e "s/LS1_SUBNET/${LS1_SUBNET}/g" \
-    -e "s/LS1_SUBNET_AZ/${LS1_SUBNET_AZ}/g" \
-    deployments/logsearch-aws-vpc.yml
+             -e "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" \
+             -e "s/CF_DOMAIN/${CF_DOMAIN}/g" \
+             -e "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" \
+             -e "s/CLOUDFOUNDRY_SG/${CF_SG}/g" \
+             -e "s/LS1_SUBNET/${LS1_SUBNET}/g" \
+             -e "s/LS1_SUBNET_AZ/${LS1_SUBNET_AZ}/g" \
+             deployments/logsearch-aws-vpc.yml
 
     bundle install
     bosh deployment logsearch-aws-vpc
@@ -362,6 +362,20 @@ if [[ $INSTALL_LOGSEARCH == "true" ]]; then
     do bosh -n deploy
     done
 
+    es_ip=10.10.6.6
+    # Install kibana dashboard
+    cat .releases/logsearch-for-cloudfoundry/target/kibana4-dashboards.json \
+        | curl --data-binary @- http://${es_ip}:9200/_bulk
+
+    # Fix Tile Map visualization # http://git.io/vLYabb
+    if [[ $(curl -s http://${es_ip}:9200/_template/ | grep -v geo_pointt) ]]; then
+        echo "installing default elasticsarch index template"
+        curl -XPUT http://${es_ip}:9200/_template/logstash -d \
+             '{"template":"logstash-*","order":10,"settings":{"number_of_shards":4,"number_of_replicas":1,"index":{"query":{"default_field":"@message"},"store":{"compress":{"stored":true,"tv":true}}}},"mappings":{"_default_":{"_all":{"enabled":false},"_source":{"compress":true},"_ttl":{"enabled":true,"default":"2592000000"},"dynamic_templates":[{"string_template":{"match":"*","mapping":{"type":"string","index":"not_analyzed"},"match_mapping_type":"string"}}],"properties":{"@message":{"type":"string","index":"analyzed"},"@tags":{"type":"string","index":"not_analyzed"},"@timestamp":{"type":"date","index":"not_analyzed"},"@type":{"type":"string","index":"not_analyzed"},"message":{"type":"string","index":"analyzed"},"message_data":{"type":"object","properties":{"Message":{"type":"string","index":"analyzed"}}},"geoip":{"properties":{"location":{"type":"geo_point"}}}}}}}'
+
+        echo "deleting all indexes since installed template only applies to new indexes"
+        curl -XDELETE http://${es_ip}:9200/logstash-*
+    fi
 fi
 
 echo "Provision script completed..."
