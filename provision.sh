@@ -35,6 +35,9 @@ INSTALL_DOCKER=${21}
 CF_RELEASE_VERSION=${22}
 DEBUG=${23}
 PRIVATE_DOMAINS=${24}
+INSTALL_LOGSEARCH=${25}
+LS1_SUBNET=${26}
+LS1_SUBNET_AZ=${27}
 
 BACKBONE_Z1_COUNT=COUNT
 API_Z1_COUNT=COUNT
@@ -328,6 +331,36 @@ if [[ $INSTALL_DOCKER == "true" ]]; then
   for i in {0..2}
   do bosh -n deploy
   done
+
+fi
+
+# Now deploy logsearch if requested
+if [[ $INSTALL_LOGSEARCH == "true" ]]; then
+
+    cd ~/workspace/deployments
+    if [[ ! -d "$HOME/workspace/deployments/logsearch-boshworkspace" ]]; then
+        git clone https://github.com/cloudfoundry-community/logsearch-boshworkspace.git
+    fi
+
+    cd logsearch-boshworkspace
+
+    /bin/sed -i \
+    -e "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" \
+    -e "s/CF_DOMAIN/${CF_DOMAIN}/g" \
+    -e "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" \
+    -e "s/CLOUDFOUNDRY_SG/${CF_SG}/g" \
+    -e "s/LS1_SUBNET/${LS1_SUBNET}/g" \
+    -e "s/LS1_SUBNET_AZ/${LS1_SUBNET_AZ}/g" \
+    deployments/logsearch-aws-vpc.yml
+
+    bundle install
+    bosh deployment logsearch-aws-vpc
+    bosh prepare deployment
+
+    # Keep trying until there is a successful BOSH deploy.
+    for i in {0..2}
+    do bosh -n deploy
+    done
 
 fi
 
