@@ -178,3 +178,9 @@ variable runner_z2_count {
 variable "private_cf_domains" {
     default = ""
 }
+
+variable additional_cf_sg_allow_1 { default = "" }
+variable additional_cf_sg_allow_2 { default = "" }
+variable additional_cf_sg_allow_3 { default = "" }
+variable additional_cf_sg_allow_4 { default = "" }
+variable additional_cf_sg_allow_5 { default = "" }

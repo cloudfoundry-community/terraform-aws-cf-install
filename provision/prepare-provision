@@ -58,6 +58,7 @@ assure_string_in_file $filename_provision 'INSTALL_DOCKER=${21}' "INSTALL_DOCKER
 assure_string_in_file $filename_provision 'CF_RELEASE_VERSION=${22}' "CF_RELEASE_VERSION=\"$(terraform output -state="${state_file}" cf_release_version)\""
 assure_string_in_file $filename_provision 'DEBUG=${23}' "DEBUG=\"$(terraform output -state="${state_file}" debug)\""
 assure_string_in_file $filename_provision 'PRIVATE_DOMAINS=${24}' "PRIVATE_DOMAINS=\"$(terraform output -state="${state_file}" private_cf_domains)\""
+assure_string_in_file $filename_provision 'CF_SG_ALLOWS=${25}' "CF_SG_ALLOWS=\"$(terraform output -state="${state_file}" additional_cf_sg_allows)\""
 
 for job in BACKBONE API SERVICES HEALTH RUNNER; do
 	for zone in Z1 Z2; do

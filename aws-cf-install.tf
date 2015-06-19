@@ -204,3 +204,6 @@ output "runner_z2_count"   { value = "${lookup(var.runner_z2_count,   var.deploy
 output "private_cf_domains" {
 	value = "${var.private_cf_domains}"
 }
+output "additional_cf_sg_allows" {
+  value = "${var.additional_cf_sg_allow_1},${var.additional_cf_sg_allow_2},${var.additional_cf_sg_allow_3},${var.additional_cf_sg_allow_4},${var.additional_cf_sg_allow_5},${module.cf.aws_cf_a_cidr},${module.cf.aws_cf_b_cidr},${module.cf.aws_lb_cidr},${module.cf.aws_docker_cidr},${module.cf.aws_eip_cf_public_ip}"
+}
