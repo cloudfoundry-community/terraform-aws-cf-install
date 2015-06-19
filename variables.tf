@@ -52,7 +52,7 @@ variable "cf_domain" {
 }
 
 variable "cf_boshworkspace_version" {
-  default = "v1.1.11"
+  default = "v1.1.12"
 }
 
 variable "cf_release_version" {
@@ -178,3 +178,9 @@ variable runner_z2_count {
 variable "private_cf_domains" {
     default = ""
 }
+
+variable additional_cf_sg_allow_1 { default = "" }
+variable additional_cf_sg_allow_2 { default = "" }
+variable additional_cf_sg_allow_3 { default = "" }
+variable additional_cf_sg_allow_4 { default = "" }
+variable additional_cf_sg_allow_5 { default = "" }

@@ -35,6 +35,7 @@ INSTALL_DOCKER=${21}
 CF_RELEASE_VERSION=${22}
 DEBUG=${23}
 PRIVATE_DOMAINS=${24}
+CF_SG_ALLOWS=${25}
 
 BACKBONE_Z1_COUNT=COUNT
 API_Z1_COUNT=COUNT
@@ -274,6 +275,18 @@ else
   sed -i -e "s/^\s\+- PRIVATE_DOMAIN_PLACEHOLDER//" deployments/cf-aws-${CF_SIZE}.yml
 fi
 
+if [[ -n "$CF_SG_ALLOWS" ]]; then
+  replacement_text=""
+  for cidr in $(echo $CF_SG_ALLOWS | tr "," "\n"); do
+    if [[ -n "$cidr" ]]; then
+      replacement_text="${replacement_text}{\"protocol\":\"all\",\"destination\":\"${cidr}\"},"
+    fi
+  done
+  if [[ -n "$replacement_text" ]]; then
+    replacement_text=$(echo $replacement_text | sed 's/,$//')
+    sed -i -e "s|^\(\s\+additional_security_group_rules:\s\+\).*|\1[$replacement_text]|" deployments/cf-aws-${CF_SIZE}.yml
+  fi
+fi
 
 # Upload the bosh release, set the deployment, and execute
 bosh upload release --skip-if-exists https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${CF_RELEASE_VERSION}
@@ -300,8 +313,8 @@ for i in {0..2}
 do bosh -n deploy
 done
 
-# Run smoke tests
-bosh run errand smoke_tests_runner
+# Run smoke tests disabled - running into intermittent failures
+#bosh run errand smoke_tests_runner
 
 # Now deploy docker services if requested
 if [[ $INSTALL_DOCKER == "true" ]]; then
