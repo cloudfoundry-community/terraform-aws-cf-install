@@ -46,7 +46,7 @@ output "aws_key_path" {
   value = "${var.aws_key_path}"
 }
 
-module "cf" {
+module "cf-net" {
   source = "github.com/cloudfoundry-community/terraform-aws-cf-net"
   network = "${var.network}"
   aws_key_name = "${var.aws_key_name}"
@@ -63,11 +63,11 @@ module "cf" {
 }
 
 output "cf_api" {
-	value = "api.run.${module.cf.aws_eip_cf_public_ip}.xip.io"
+	value = "api.run.${module.cf-net.aws_eip_cf_public_ip}.xip.io"
 }
 
 output "aws_subnet_docker_id" {
-  value = "${module.cf.aws_subnet_docker_id}"
+  value = "${module.cf-net.aws_subnet_docker_id}"
 }
 
 resource "aws_instance" "bastion" {
@@ -97,7 +97,7 @@ output "cf_domain" {
 }
 
 resource "aws_security_group_rule" "nat" {
-	source_security_group_id = "${module.cf.aws_security_group_cf_id}"
+	source_security_group_id = "${module.cf-net.aws_security_group_cf_id}"
 
 	security_group_id = "${module.vpc.aws_security_group_nat_id}"
 	from_port = -1
@@ -127,23 +127,23 @@ output "ipmask" {
 }
 
 output "cf_api_id" {
-	value = "${module.cf.aws_eip_cf_public_ip}"
+	value = "${module.cf-net.aws_eip_cf_public_ip}"
 }
 
 output "cf_subnet1" {
-  value = "${module.cf.aws_subnet_cfruntime-2a_id}"
+  value = "${module.cf-net.aws_subnet_cfruntime-2a_id}"
 }
 
 output "cf_subnet1_az" {
-	value = "${module.cf.aws_subnet_cfruntime-2a_availability_zone}"
+	value = "${module.cf-net.aws_subnet_cfruntime-2a_availability_zone}"
 }
 
 output "cf_subnet2" {
-	value = "${module.cf.aws_subnet_cfruntime-2b_id}"
+	value = "${module.cf-net.aws_subnet_cfruntime-2b_id}"
 }
 
 output "cf_subnet2_az" {
-	value = "${module.cf.aws_subnet_cfruntime-2b_availability_zone}"
+	value = "${module.cf-net.aws_subnet_cfruntime-2b_availability_zone}"
 }
 
 output "bastion_az" {
@@ -155,15 +155,15 @@ output "bastion_id" {
 }
 
 output "lb_subnet1" {
-	value = "${module.cf.aws_subnet_lb_id}"
+	value = "${module.cf-net.aws_subnet_lb_id}"
 }
 
 output "cf_sg" {
-	value = "${module.cf.aws_security_group_cf_name}"
+	value = "${module.cf-net.aws_security_group_cf_name}"
 }
 
 output "cf_sg_id" {
-	value = "${module.cf.aws_security_group_cf_id}"
+	value = "${module.cf-net.aws_security_group_cf_id}"
 }
 
 output "cf_boshworkspace_version" {
@@ -175,7 +175,7 @@ output "cf_size" {
 }
 
 output "docker_subnet" {
-	value = "${module.cf.aws_subnet_docker_id}"
+	value = "${module.cf-net.aws_subnet_docker_id}"
 }
 
 output "install_docker_services" {
@@ -205,5 +205,5 @@ output "private_cf_domains" {
 	value = "${var.private_cf_domains}"
 }
 output "additional_cf_sg_allows" {
-  value = "${var.additional_cf_sg_allow_1},${var.additional_cf_sg_allow_2},${var.additional_cf_sg_allow_3},${var.additional_cf_sg_allow_4},${var.additional_cf_sg_allow_5},${module.cf.aws_cf_a_cidr},${module.cf.aws_cf_b_cidr},${module.cf.aws_lb_cidr},${module.cf.aws_docker_cidr},${module.cf.aws_eip_cf_public_ip}"
+  value = "${var.additional_cf_sg_allow_1},${var.additional_cf_sg_allow_2},${var.additional_cf_sg_allow_3},${var.additional_cf_sg_allow_4},${var.additional_cf_sg_allow_5},${module.cf-net.aws_cf_a_cidr},${module.cf-net.aws_cf_b_cidr},${module.cf-net.aws_lb_cidr},${module.cf-net.aws_docker_cidr},${module.cf-net.aws_eip_cf_public_ip}"
 }
