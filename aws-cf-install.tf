@@ -207,3 +207,12 @@ output "private_cf_domains" {
 output "additional_cf_sg_allows" {
   value = "${var.additional_cf_sg_allow_1},${var.additional_cf_sg_allow_2},${var.additional_cf_sg_allow_3},${var.additional_cf_sg_allow_4},${var.additional_cf_sg_allow_5},${module.cf-net.aws_cf_a_cidr},${module.cf-net.aws_cf_b_cidr},${module.cf-net.aws_lb_cidr},${module.cf-net.aws_docker_cidr},${module.cf-net.aws_eip_cf_public_ip}"
 }
+
+output "backbone_resource_pool"        { value = "${var.backbone_resource_pool}" }
+output "data_resource_pool"            { value = "${var.data_resource_pool}" }
+output "public_haproxy_resource_pool"  { value = "${var.public_haproxy_resource_pool}" }
+output "private_haproxy_resource_pool" { value = "${var.private_haproxy_resource_pool}" }
+output "api_resource_pool"             { value = "${var.api_resource_pool}" }
+output "services_resource_pool"        { value = "${var.services_resource_pool}" }
+output "health_resource_pool"          { value = "${var.health_resource_pool}" }
+output "runner_resource_pool"          { value = "${var.runner_resource_pool}" }

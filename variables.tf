@@ -184,3 +184,12 @@ variable additional_cf_sg_allow_2 { default = "" }
 variable additional_cf_sg_allow_3 { default = "" }
 variable additional_cf_sg_allow_4 { default = "" }
 variable additional_cf_sg_allow_5 { default = "" }
+
+variable "backbone_resource_pool"        { default = "large" }
+variable "data_resource_pool"            { default = "large" }
+variable "public_haproxy_resource_pool"  { default = "small" }
+variable "private_haproxy_resource_pool" { default = "small" }
+variable "api_resource_pool"             { default = "medium" }
+variable "services_resource_pool"        { default = "medium" }
+variable "health_resource_pool"          { default = "medium" }
+variable "runner_resource_pool"          { default = "runner" }

@@ -67,3 +67,10 @@ for job in BACKBONE API SERVICES HEALTH RUNNER; do
 		assure_string_in_file $filename_provision "${uc_job_name}=COUNT" "${uc_job_name}=\"$(terraform output -state="${state_file}" ${lc_job_name})\""
 	done
 done
+
+for job in DATA PUBLIC_HAPROXY PRIVATE_HAPROXY BACKBONE API SERVICES HEALTH RUNNER; do
+	uc_job_name=${job}
+	lc_job_name=$(echo $uc_job_name | tr '[:upper:]' '[:lower:]')
+	uc_job_name=${uc_job_name}_POOL
+	assure_string_in_file $filename_provision "${uc_job_name}=POOL" "${uc_job_name}=\"$(terraform output -state="${state_file}" ${lc_job_name}_resource_pool)\""
+done
