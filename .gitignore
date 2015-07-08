@@ -6,3 +6,4 @@ crash.log
 .terraform/
 provision/provision.sh
 .DS_Store
+*.swp
