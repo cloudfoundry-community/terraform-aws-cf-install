@@ -36,6 +36,8 @@ CF_RELEASE_VERSION=${22}
 DEBUG=${23}
 PRIVATE_DOMAINS=${24}
 CF_SG_ALLOWS=${25}
+RUN_SUBDOMAIN=${26}
+APPS_SUBDOMAIN=${27}
 
 BACKBONE_Z1_COUNT=COUNT
 API_Z1_COUNT=COUNT
@@ -246,6 +248,20 @@ if [[ ! -f "/usr/local/bin/spiff" ]]; then
   rm spiff_linux_amd64.zip
 fi
 
+# If RUN_SUBDOMAIN is set, then use it's value to replace the default subdomain. Otherwise (if empty), don't use a subdomain
+if [[ -n "$RUN_SUBDOMAIN" ]]; then
+  RUN_SUBDOMAIN_SED_EXPRESSION="s/run.CF_DOMAIN/${RUN_SUBDOMAIN}.${CF_DOMAIN}/g"
+else
+  RUN_SUBDOMAIN_SED_EXPRESSION="s/run.CF_DOMAIN/${CF_DOMAIN}/g"
+fi
+
+# If APPS_SUBDOMAIN is set, then use it's value to replace the default subdomain. Otherwise (if empty), don't use a subdomain
+if [[ -n "$APPS_SUBDOMAIN" ]]; then
+  APPS_SUBDOMAIN_SED_EXPRESSION="s/apps.CF_DOMAIN/${APPS_SUBDOMAIN}.${CF_DOMAIN}/g"
+else
+  APPS_SUBDOMAIN_SED_EXPRESSION="s/apps.CF_DOMAIN/${CF_DOMAIN}/g"
+fi
+
 # This is some hackwork to get the configs right. Could be changed in the future
 /bin/sed -i \
   -e "s/CF_SUBNET1_AZ/${CF_SUBNET1_AZ}/g" \
@@ -256,6 +272,8 @@ fi
   -e "s/CF_SUBNET2/${CF_SUBNET2}/g" \
   -e "s/LB_SUBNET1/${LB_SUBNET1}/g" \
   -e "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" \
+  -e $RUN_SUBDOMAIN_SED_EXPRESSION \
+  -e $APPS_SUBDOMAIN_SED_EXPRESSION \
   -e "s/CF_DOMAIN/${CF_DOMAIN}/g" \
   -e "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" \
   -e "s/IPMASK/${IPMASK}/g" \

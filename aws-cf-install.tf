@@ -96,6 +96,14 @@ output "cf_domain" {
   value = "${var.cf_domain}"
 }
 
+output "run_subdomain" {
+  value = "${var.run_subdomain}"
+}
+
+output "apps_subdomain" {
+  value = "${var.apps_subdomain}"
+}
+
 resource "aws_security_group_rule" "nat" {
 	source_security_group_id = "${module.cf-net.aws_security_group_cf_id}"
 
@@ -204,6 +212,7 @@ output "runner_z2_count"   { value = "${lookup(var.runner_z2_count,   var.deploy
 output "private_cf_domains" {
 	value = "${var.private_cf_domains}"
 }
+
 output "additional_cf_sg_allows" {
   value = "${var.additional_cf_sg_allow_1},${var.additional_cf_sg_allow_2},${var.additional_cf_sg_allow_3},${var.additional_cf_sg_allow_4},${var.additional_cf_sg_allow_5},${module.cf-net.aws_cf_a_cidr},${module.cf-net.aws_cf_b_cidr},${module.cf-net.aws_lb_cidr},${module.cf-net.aws_docker_cidr},${module.cf-net.aws_eip_cf_public_ip}"
 }

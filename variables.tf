@@ -51,6 +51,14 @@ variable "cf_domain" {
   default = "XIP"
 }
 
+variable "run_subdomain" {
+  default = "run"
+}
+
+variable "apps_subdomain" {
+  default = "apps"
+}
+
 variable "cf_boshworkspace_version" {
   default = "v1.1.15"
 }
