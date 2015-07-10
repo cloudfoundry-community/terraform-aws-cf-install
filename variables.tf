@@ -51,11 +51,11 @@ variable "cf_domain" {
   default = "XIP"
 }
 
-variable "run_subdomain" {
+variable "cf_run_subdomain" {
   default = "run"
 }
 
-variable "apps_subdomain" {
+variable "cf_apps_subdomain" {
   default = "apps"
 }
 

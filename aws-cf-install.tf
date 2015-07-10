@@ -96,12 +96,12 @@ output "cf_domain" {
   value = "${var.cf_domain}"
 }
 
-output "run_subdomain" {
-  value = "${var.run_subdomain}"
+output "cf_run_subdomain" {
+  value = "${var.cf_run_subdomain}"
 }
 
-output "apps_subdomain" {
-  value = "${var.apps_subdomain}"
+output "cf_apps_subdomain" {
+  value = "${var.cf_apps_subdomain}"
 }
 
 resource "aws_security_group_rule" "nat" {
