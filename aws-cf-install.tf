@@ -70,6 +70,14 @@ output "aws_subnet_docker_id" {
   value = "${module.cf-net.aws_subnet_docker_id}"
 }
 
+output "aws_subnet_logsearch_id" {
+  value = "${module.cf-net.aws_subnet_logsearch_id}"
+}
+
+output "logsearch_subnet_az" {
+  value = "${module.cf-net.aws_subnet_logsearch_availability_zone}"
+}
+
 resource "aws_instance" "bastion" {
   ami = "${lookup(var.aws_ubuntu_ami, var.aws_region)}"
   instance_type = "m3.medium"
@@ -188,6 +196,14 @@ output "docker_subnet" {
 
 output "install_docker_services" {
 	value = "${var.install_docker_services}"
+}
+
+output "logsearch_subnet" {
+	value = "${module.cf-net.aws_subnet_logsearch_id}"
+}
+
+output "install_logsearch" {
+	value = "${var.install_logsearch}"
 }
 
 output "cf_release_version" {
