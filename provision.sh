@@ -39,6 +39,10 @@ CF_SG_ALLOWS=${25}
 CF_RUN_SUBDOMAIN=${26}
 CF_APPS_SUBDOMAIN=${27}
 
+INSTALL_LOGSEARCH=${28}
+LS1_SUBNET=${29}
+LS1_SUBNET_AZ=${30}
+
 BACKBONE_Z1_COUNT=COUNT
 API_Z1_COUNT=COUNT
 SERVICES_Z1_COUNT=COUNT
@@ -59,7 +63,11 @@ SERVICES_POOL=POOL
 HEALTH_POOL=POOL
 RUNNER_POOL=POOL
 
+SKIP_SSL_VALIDATION=false
+
 boshDirectorHost="${IPMASK}.1.4"
+logsearch_es_ip="${IPMASK}.7.6"
+logsearch_syslog="${IPMASK}.7.7"
 
 cd $HOME
 (("$?" == "0")) ||
@@ -232,6 +240,7 @@ DIRECTOR_UUID=$(bosh status --uuid)
 # If CF_DOMAIN is set to XIP, then use XIP.IO. Otherwise, use the variable
 if [[ $CF_DOMAIN == "XIP" ]]; then
   CF_DOMAIN="${CF_IP}.xip.io"
+  SKIP_SSL_VALIDATION="true"
 fi
 
 echo "Install Traveling CF"
@@ -323,6 +332,20 @@ if [[ -n "$CF_SG_ALLOWS" ]]; then
   fi
 fi
 
+if [[ $INSTALL_LOGSEARCH == "true" ]]; then
+    if [[ $(grep -v syslog deployments/cf-aws-${CF_SIZE}.yml)  ]]; then
+        INSERT_AT=$(grep -n cf-networking.yml deployments/cf-aws-${CF_SIZE}.yml  | cut -d : -f 1)
+        sed -i "${INSERT_AT}i\ \ - cf-syslog.yml" deployments/cf-aws-${CF_SIZE}.yml
+
+        cat <<EOF >> deployments/cf-aws-${CF_SIZE}.yml
+
+  syslog_daemon_config:
+    address: ${logsearch_syslog}
+    port: 5515
+EOF
+    fi
+fi
+
 # Upload the bosh release, set the deployment, and execute
 bosh upload release --skip-if-exists https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${CF_RELEASE_VERSION}
 bosh deployment cf-aws-${CF_SIZE}
@@ -377,6 +400,51 @@ if [[ $INSTALL_DOCKER == "true" ]]; then
   do bosh -n deploy
   done
 
+fi
+
+# Now deploy logsearch if requested
+if [[ $INSTALL_LOGSEARCH == "true" ]]; then
+
+    cd ~/workspace/deployments
+    if [[ ! -d "$HOME/workspace/deployments/logsearch-boshworkspace" ]]; then
+        git clone https://github.com/cloudfoundry-community/logsearch-boshworkspace.git
+    fi
+
+    cd logsearch-boshworkspace
+
+    /bin/sed -i \
+             -e "s/DIRECTOR_UUID/${DIRECTOR_UUID}/g" \
+             -e "s/IPMASK/${IPMASK}/g" \
+             -e "s/CF_DOMAIN/run.${CF_DOMAIN}/g" \
+             -e "s/CF_ADMIN_PASS/${CF_ADMIN_PASS}/g" \
+             -e "s/CLOUDFOUNDRY_SG/${CF_SG}/g" \
+             -e "s/LS1_SUBNET_AZ/${LS1_SUBNET_AZ}/g" \
+             -e "s/LS1_SUBNET/${LS1_SUBNET}/g" \
+             -e "s/skip-ssl-validation: false/skip-ssl-validation: ${SKIP_SSL_VALIDATION}/g"\
+             deployments/logsearch-aws-vpc.yml
+
+    bundle install
+    bosh deployment logsearch-aws-vpc
+    bosh prepare deployment
+
+    # Keep trying until there is a successful BOSH deploy.
+    for i in {0..2}
+    do bosh -n deploy
+    done
+
+    # Install kibana dashboard
+    cat .releases/logsearch-for-cloudfoundry/target/kibana4-dashboards.json \
+        | curl --data-binary @- http://${logsearch_es_ip}:9200/_bulk
+
+    # Fix Tile Map visualization # http://git.io/vLYabb
+    if [[ $(curl -s http://${logsearch_es_ip}:9200/_template/ | grep -v geo_pointt) ]]; then
+        echo "installing default elasticsarch index template"
+        curl -XPUT http://${logsearch_es_ip}:9200/_template/logstash -d \
+             '{"template":"logstash-*","order":10,"settings":{"number_of_shards":4,"number_of_replicas":1,"index":{"query":{"default_field":"@message"},"store":{"compress":{"stored":true,"tv":true}}}},"mappings":{"_default_":{"_all":{"enabled":false},"_source":{"compress":true},"_ttl":{"enabled":true,"default":"2592000000"},"dynamic_templates":[{"string_template":{"match":"*","mapping":{"type":"string","index":"not_analyzed"},"match_mapping_type":"string"}}],"properties":{"@message":{"type":"string","index":"analyzed"},"@tags":{"type":"string","index":"not_analyzed"},"@timestamp":{"type":"date","index":"not_analyzed"},"@type":{"type":"string","index":"not_analyzed"},"message":{"type":"string","index":"analyzed"},"message_data":{"type":"object","properties":{"Message":{"type":"string","index":"analyzed"}}},"geoip":{"properties":{"location":{"type":"geo_point"}}}}}}}'
+
+        echo "deleting all indexes since installed template only applies to new indexes"
+        curl -XDELETE http://${logsearch_es_ip}:9200/logstash-*
+    fi
 fi
 
 echo "Provision script completed..."

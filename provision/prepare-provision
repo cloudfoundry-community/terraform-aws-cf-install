@@ -61,6 +61,9 @@ assure_string_in_file $filename_provision 'PRIVATE_DOMAINS=${24}' "PRIVATE_DOMAI
 assure_string_in_file $filename_provision 'CF_SG_ALLOWS=${25}' "CF_SG_ALLOWS=\"$(terraform output -state="${state_file}" additional_cf_sg_allows)\""
 assure_string_in_file $filename_provision 'CF_RUN_SUBDOMAIN=${26}' "CF_RUN_SUBDOMAIN=\"$(terraform output -state="${state_file}" cf_run_subdomain)\""
 assure_string_in_file $filename_provision 'CF_APPS_SUBDOMAIN=${27}' "CF_APPS_SUBDOMAIN=\"$(terraform output -state="${state_file}" cf_apps_subdomain)\""
+assure_string_in_file $filename_provision 'INSTALL_LOGSEARCH=${28}' "INSTALL_LOGSEARCH=\"$(terraform output -state="${state_file}" install_logsearch)\""
+assure_string_in_file $filename_provision 'LS1_SUBNET=${29}' "LS1_SUBNET=\"$(terraform output -state="${state_file}" logsearch_subnet)\""
+assure_string_in_file $filename_provision 'LS1_SUBNET_AZ=${30}' "LS1_SUBNET_AZ=\"$(terraform output -state="${state_file}" logsearch_subnet_az)\""
 
 for job in BACKBONE API SERVICES HEALTH RUNNER; do
 	for zone in Z1 Z2; do

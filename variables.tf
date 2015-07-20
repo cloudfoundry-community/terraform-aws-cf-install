@@ -193,6 +193,10 @@ variable additional_cf_sg_allow_3 { default = "" }
 variable additional_cf_sg_allow_4 { default = "" }
 variable additional_cf_sg_allow_5 { default = "" }
 
+variable install_logsearch {
+    default = "false"
+}
+
 variable "backbone_resource_pool"        { default = "large" }
 variable "data_resource_pool"            { default = "large" }
 variable "public_haproxy_resource_pool"  { default = "small" }
