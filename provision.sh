@@ -353,8 +353,6 @@ EOF
     fi
 fi
 
-# Upload the bosh release, set the deployment, and execute
-# bosh upload release --skip-if-exists https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${CF_RELEASE_VERSION}
 bosh deployment cf-aws-${CF_SIZE}
 bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 
