@@ -60,11 +60,11 @@ variable "cf_apps_subdomain" {
 }
 
 variable "cf_boshworkspace_version" {
-  default = "v1.1.15"
+  default = "v1.2.0"
 }
 
 variable "cf_release_version" {
-  default = "210"
+  default = "222"
 }
 
 variable "cf_size" {

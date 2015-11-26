@@ -134,6 +134,13 @@ source ~/.rvm/scripts/rvm
 gem install fog-aws -v 0.1.1 --no-ri --no-rdoc --quiet
 gem install bundler bosh-bootstrap --no-ri --no-rdoc --quiet
 
+# Workaround 'illegal image file' bug in bosh-aws-cpi gem.
+# Issue is already fixed in bosh-aws-cpi-release but no new gems are being published
+if [[ ! -f "/usr/local/bin/stemcell-copy" ]]; then
+    curl -sOL https://raw.githubusercontent.com/cloudfoundry-incubator/bosh-aws-cpi-release/138b4cac03197af61e252f0fc3611c0a5fb796e1/src/bosh_aws_cpi/scripts/stemcell-copy.sh
+    sudo mv ./stemcell-copy.sh /usr/local/bin/stemcell-copy
+    chmod +x /usr/local/bin/stemcell-copy
+fi
 
 # We use fog below, and bosh-bootstrap uses it as well
 cat <<EOF > ~/.fog
@@ -346,8 +353,6 @@ EOF
     fi
 fi
 
-# Upload the bosh release, set the deployment, and execute
-bosh upload release --skip-if-exists https://bosh.io/d/github.com/cloudfoundry/cf-release?v=${CF_RELEASE_VERSION}
 bosh deployment cf-aws-${CF_SIZE}
 bosh prepare deployment || bosh prepare deployment  #Seems to always fail on the first run...
 
