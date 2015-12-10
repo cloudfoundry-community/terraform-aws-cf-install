@@ -373,7 +373,7 @@ fi
 
 # Keep trying until there is a successful BOSH deploy.
 for i in {0..2}
-do bosh -n deploy
+do bosh -n deploy || true
 done
 
 # Run smoke tests disabled - running into intermittent failures
