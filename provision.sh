@@ -96,7 +96,7 @@ case "${release}" in
       libpq-dev libmysqlclient-dev libsqlite3-dev \
       g++ gcc make libc6-dev libreadline6-dev zlib1g-dev libssl-dev libyaml-dev \
       libsqlite3-dev sqlite3 autoconf libgdbm-dev libncurses5-dev automake \
-      libtool bison pkg-config libffi-dev cmake
+      libtool bison pkg-config libffi-dev cmake libgmp-dev
     ;;
   (*Centos*|*RedHat*|*Amazon*)
     sudo yum update -y
@@ -105,7 +105,7 @@ case "${release}" in
     zlib zlib-devel libevent libevent-devel readline readline-devel cmake ntp \
     htop wget tmux gcc g++ autoconf pcre pcre-devel vim-enhanced gcc mysql-devel \
     postgresql-devel postgresql-libs sqlite-devel libxslt-devel libxml2-devel \
-    yajl-ruby cmake
+    yajl-ruby cmake libgmp-dev
     ;;
 esac
 
@@ -119,19 +119,26 @@ fi
 
 cd $HOME
 
-if [[ ! "$(ls -A $HOME/.rvm/environments)" ]]; then
-  ~/.rvm/bin/rvm install ruby-2.1
+# ruby 2.1.5 for cf-boshworkspace compatibility
+if [[ ! "$(ls -A $HOME/.rvm/environments/ruby-2.1.5)" ]]; then
+  ~/.rvm/bin/rvm install ruby-2.1.5
+fi
+
+# ruby 2.3.0 for bosh-bootstrap compatibility
+if [[ ! "$(ls -A $HOME/.rvm/environments/ruby-2.3.0)" ]]; then
+  ~/.rvm/bin/rvm install ruby-2.3.0
 fi
 
 if [[ ! -d "$HOME/.rvm/environments/default" ]]; then
-  ~/.rvm/bin/rvm alias create default 2.1
+  ~/.rvm/bin/rvm alias create default 2.3.0
 fi
 
 source ~/.rvm/environments/default
 source ~/.rvm/scripts/rvm
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
-gem install fog-aws -v 0.1.1 --no-ri --no-rdoc --quiet
+# With bosh-bootstrap 0.18.1 there is no need to provide version.
+gem install fog-aws --no-ri --no-rdoc --quiet
 gem install bundler bosh-bootstrap --no-ri --no-rdoc --quiet
 
 # Workaround 'illegal image file' bug in bosh-aws-cpi gem.
