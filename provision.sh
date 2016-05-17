@@ -91,7 +91,7 @@ case "${release}" in
   (*Ubuntu*|*Debian*)
     sudo apt-get update -yq
     sudo apt-get install -yq aptitude
-    sudo aptitude -yq install build-essential vim-nox git unzip tree \
+    sudo aptitude -yq install build-essential vim-nox git unzip tree perl \
       libxslt-dev libxslt1.1 libxslt1-dev libxml2 libxml2-dev \
       libpq-dev libmysqlclient-dev libsqlite3-dev \
       g++ gcc make libc6-dev libreadline6-dev zlib1g-dev libssl-dev libyaml-dev \
@@ -120,19 +120,19 @@ fi
 cd $HOME
 
 if [[ ! "$(ls -A $HOME/.rvm/environments)" ]]; then
-  ~/.rvm/bin/rvm install ruby-2.1
+  ~/.rvm/bin/rvm install ruby-2.2
 fi
 
 if [[ ! -d "$HOME/.rvm/environments/default" ]]; then
-  ~/.rvm/bin/rvm alias create default 2.1
+  ~/.rvm/bin/rvm alias create default 2.2
 fi
 
 source ~/.rvm/environments/default
 source ~/.rvm/scripts/rvm
 
 # Install BOSH CLI, bosh-bootstrap, spiff and other helpful plugins/tools
-gem install fog-aws -v 0.1.1 --no-ri --no-rdoc --quiet
-gem install bundler bosh-bootstrap --no-ri --no-rdoc --quiet
+gem install fog-aws -v 0.9.2 --no-ri --no-rdoc --quiet
+gem install bundler bosh-bootstrap bosh_cli --no-ri --no-rdoc --quiet
 
 # Workaround 'illegal image file' bug in bosh-aws-cpi gem.
 # Issue is already fixed in bosh-aws-cpi-release but no new gems are being published
