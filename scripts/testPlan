@@ -17,6 +17,8 @@ CLEANUP () {
   fi
 }
 
+set -x
+
 # Pre-testing cleanup
 rm -fR .terraform/modules/
 
@@ -29,6 +31,7 @@ OUTPUT=$(terraform get -update)
 CLEANUP "$?" "$desc" "Unable to fetch the modules we depend on"
 
 desc="Does the plan compile?"
+OUTPUT=$(ls)
 OUTPUT=$(terraform validate -var-file terraform.tfvars.example)
 CLEANUP "$?" "$desc" "$OUTPUT"
 
