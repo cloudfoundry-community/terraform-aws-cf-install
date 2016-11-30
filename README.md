@@ -1,6 +1,8 @@
 terraform-aws-cf-install [![Build Status](https://travis-ci.org/cloudfoundry-community/terraform-aws-cf-install.svg?branch=master)](https://travis-ci.org/cloudfoundry-community/terraform-aws-cf-install)
 ========================
 
+THIS PROJECT IS NOT LONGER MAINTAINED. USE AT YOUR OWN RISK!
+
 This is part of a project that aims to create a one click deploy of Cloud Foundry into an AWS VPC. This is (probably) the repo you want to use.
 
 Architecture
