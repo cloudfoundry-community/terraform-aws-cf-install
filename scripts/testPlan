@@ -29,7 +29,7 @@ OUTPUT=$(terraform get -update)
 CLEANUP "$?" "$desc" "Unable to fetch the modules we depend on"
 
 desc="Does the plan compile?"
-OUTPUT=$(terraform plan -var-file terraform.tfvars.example)
+OUTPUT=$(terraform validate -var-file terraform.tfvars.example)
 CLEANUP "$?" "$desc" "$OUTPUT"
 
 # FIXME: Find a better way to double check plan modifications, terraform output
